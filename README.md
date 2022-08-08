@@ -18,7 +18,7 @@ This is my solution about homework, lab and project in CS61B spring2021
   - [x] lab1
   - [ ] lab2
   - [ ] lab3
-	- [ ] ...
+  - [ ] ...
 - project
   - [ ] proj1
   - [ ] proj2
