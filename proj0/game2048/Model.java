@@ -180,12 +180,13 @@ public class Model extends Observable {
                     return true;
                 }
                 Tile t = b.tile(i, j);
-                Tile[] tiles = fourDirectionVaildTile(i, j, b);
-                for (int k = 0; k < tiles.length; i++){
+                Tile[] tiles = fourDirectionValidTile(i, j, b);
+                // note: use "k" (not "i" or "j")as index and count below loop
+                for (int k = 0; k < tiles.length; k++){
                     if (tiles[k] == null){
                         continue;
                     }
-                    if (t.value() == tiles[k].value()){
+                    if (tiles[k].value() == t.value()){
                         return true;
                     }
                 }
@@ -194,34 +195,36 @@ public class Model extends Observable {
         return false;
     }
 
-    /** Return a list cantains vaild Tile*/
-    public static Tile[] fourDirectionVaildTile(int col, int row, Board b){
+    /** Return list that contains valid Tile*/
+    public static Tile[] fourDirectionValidTile(int col, int row, Board b){
         Tile[] tiles = new Tile[4];
         int cnt = 0;
-        int lenght = b.size();
-        if (vaildIndex(col - 1 ,row ,lenght)){
+        int length = b.size();
+        if (validIndex(col - 1 ,row ,length)){
             tiles[cnt] = b.tile(col -1, row);
             cnt += 1;
         }
-        if (vaildIndex(col + 1 ,row ,lenght)){
-            tiles[cnt] = b.tile(col,row + 1);
+        if (validIndex(col + 1 ,row ,length)){
+            tiles[cnt] = b.tile(col + 1,row);
             cnt += 1;
         }
-        if (vaildIndex(col ,row - 1 ,lenght)){
+        if (validIndex(col ,row - 1 ,length)){
             tiles[cnt] = b.tile(col ,row - 1);
             cnt += 1;
         }
-        if (vaildIndex(col,row + 1 ,lenght)){
+        if (validIndex(col,row + 1 ,length)){
             tiles[cnt] = b.tile(col,row + 1);
         }
         return tiles;
     }
-    /** Return Ture if vaild ,otherwise return false */
-    public static boolean vaildIndex(int col, int row, int lenght){
+
+    /** Return Ture if valid ,otherwise return false */
+    public static boolean validIndex(int col, int row, int length){
         if (col < 0 || row < 0){
             return false;
         }
-        if (col > lenght || row > lenght){
+        // note: list[4] from 0 to 3, so list[4] is impossible in list[4]
+        if (col >= length || row >= length){
             return false;
         }
         return true;
