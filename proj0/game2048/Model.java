@@ -5,7 +5,7 @@ import java.util.Observable;
 
 
 /** The state of a game of 2048.
- *  @author HuangJinghong
+ *  @author HuangJinhong
  */
 public class Model extends Observable {
     /** Current contents of the board. */
@@ -94,7 +94,7 @@ public class Model extends Observable {
         setChanged();
     }
 
-    /** Tilt the board toward SIDE. Return true iff this changes the board.
+    /** Tilt the board toward SIDE. Return true if this changes the board.
      *
      * 1. If two Tile objects are adjacent in the direction of motion and have
      *    the same value, they are merged into one Tile of twice the original
@@ -113,12 +113,57 @@ public class Model extends Observable {
         // TODO: Modify this.board (and perhaps this.score) to account
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
+        this.board.setViewingPerspective(side);
+        int length = this.board.size() - 1;
+        int maxRow = length;
+        for (int col = 0; col <= length; col++){
+            for (int row = length; row >= 0; row--){
+                // check
+                if (row == length){
+                    continue;
+                }
+                Tile t = this.board.tile(col, row);
+                if (t == null){
+                    continue;
+                }
+
+                // move
+                int moveRow = Model.getMoveRow(col, row, maxRow, this.board);
+                if (moveRow != row){
+                    // if merged, increase score
+                    // and maxRow sub 1 due to we CAN'T merge to a merged tile again
+                    if (board.move(col, moveRow, t)){
+                        this.score += this.board.tile(col, moveRow).value();
+                        maxRow -= 1;
+                    }
+                    changed = true;
+                }
+            }
+            // reset maxRow
+            maxRow = length;
+        }
+        this.board.setViewingPerspective(Side.NORTH);
 
         checkGameOver();
         if (changed) {
             setChanged();
         }
         return changed;
+    }
+
+    public static int getMoveRow(int col, int row, int maxRow, Board b){
+        for (int moveRow = maxRow; moveRow >= 0; moveRow--){
+            // "up tile" is empty
+            if (b.tile(col, moveRow) == null){
+                return moveRow;
+            }
+            // same value("up tile" value equals current tile value)
+            if (b.tile(col, moveRow).value() == b.tile(col, row).value()){
+                return moveRow;
+            }
+        }
+        // can't move, return current row of current
+        return row;
     }
 
     /** Checks if the game is over and sets the gameOver variable
@@ -180,7 +225,7 @@ public class Model extends Observable {
                     return true;
                 }
                 Tile t = b.tile(i, j);
-                Tile[] tiles = fourDirectionValidTile(i, j, b);
+                Tile[] tiles = Model.fourDirectionValidTile(i, j, b);
                 // note: use "k" (not "i" or "j")as index and count below loop
                 for (int k = 0; k < tiles.length; k++){
                     if (tiles[k] == null){
@@ -200,19 +245,19 @@ public class Model extends Observable {
         Tile[] tiles = new Tile[4];
         int cnt = 0;
         int length = b.size();
-        if (validIndex(col - 1 ,row ,length)){
+        if (Model.validIndex(col - 1 ,row ,length)){
             tiles[cnt] = b.tile(col -1, row);
             cnt += 1;
         }
-        if (validIndex(col + 1 ,row ,length)){
+        if (Model.validIndex(col + 1 ,row ,length)){
             tiles[cnt] = b.tile(col + 1,row);
             cnt += 1;
         }
-        if (validIndex(col ,row - 1 ,length)){
+        if (Model.validIndex(col ,row - 1 ,length)){
             tiles[cnt] = b.tile(col ,row - 1);
             cnt += 1;
         }
-        if (validIndex(col,row + 1 ,length)){
+        if (Model.validIndex(col,row + 1 ,length)){
             tiles[cnt] = b.tile(col,row + 1);
         }
         return tiles;
