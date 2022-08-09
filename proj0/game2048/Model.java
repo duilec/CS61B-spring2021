@@ -174,9 +174,59 @@ public class Model extends Observable {
      * 2. There are two adjacent tiles with the same value.
      */
     public static boolean atLeastOneMoveExists(Board b) {
-        // TODO: Fill in this function.
+        for (int i = 0; i < b.size(); i++){
+            for (int j = 0; j < b.size(); j++){
+                if (b.tile(i, j) == null){
+                    return true;
+                }
+                Tile t = b.tile(i, j);
+                Tile[] tiles = fourDirectionVaildTile(i, j, b);
+                for (int k = 0; k < tiles.length; i++){
+                    if (tiles[k] == null){
+                        continue;
+                    }
+                    if (t.value() == tiles[k].value()){
+                        return true;
+                    }
+                }
+            }
+        }
         return false;
     }
+
+    /** Return a list cantains vaild Tile*/
+    public static Tile[] fourDirectionVaildTile(int col, int row, Board b){
+        Tile[] tiles = new Tile[4];
+        int cnt = 0;
+        int lenght = b.size();
+        if (vaildIndex(col - 1 ,row ,lenght)){
+            tiles[cnt] = b.tile(col -1, row);
+            cnt += 1;
+        }
+        if (vaildIndex(col + 1 ,row ,lenght)){
+            tiles[cnt] = b.tile(col,row + 1);
+            cnt += 1;
+        }
+        if (vaildIndex(col ,row - 1 ,lenght)){
+            tiles[cnt] = b.tile(col ,row - 1);
+            cnt += 1;
+        }
+        if (vaildIndex(col,row + 1 ,lenght)){
+            tiles[cnt] = b.tile(col,row + 1);
+        }
+        return tiles;
+    }
+    /** Return Ture if vaild ,otherwise return false */
+    public static boolean vaildIndex(int col, int row, int lenght){
+        if (col < 0 || row < 0){
+            return false;
+        }
+        if (col > lenght || row > lenght){
+            return false;
+        }
+        return true;
+    }
+
 
 
     @Override
