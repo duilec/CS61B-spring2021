@@ -61,7 +61,7 @@ time: *2022.08.08*
 
 ## proj1
 
-time: *2022.08.08*
+time: *2022.08.09*
 
 - keeping patient when reading English text
 
