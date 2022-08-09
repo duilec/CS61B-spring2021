@@ -11,7 +11,7 @@ This is my solution about homework, lab and project in CS61B spring2021
 ## course progress
 
 - homework
-  - [ ] hw0
+  - [x] hw0
   - [ ] hw2
   - [ ] hw3
 - lab
@@ -24,6 +24,12 @@ This is my solution about homework, lab and project in CS61B spring2021
   - [ ] proj2
   - [ ] proj3
   - [ ] ...
+
+## hw0
+
+time: *2022.08.09*
+
+- I only write a version of "for" in `GetMax`
 
 ## lab1
 
