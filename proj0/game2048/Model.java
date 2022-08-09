@@ -113,6 +113,8 @@ public class Model extends Observable {
         // TODO: Modify this.board (and perhaps this.score) to account
         // for the tilt to the Side SIDE. If the board changed, set the
         // changed local variable to true.
+
+        // set new view (if press left, side is west, if press right, side is east and so on)
         this.board.setViewingPerspective(side);
         int length = this.board.size() - 1;
         int maxRow = length;
@@ -142,6 +144,7 @@ public class Model extends Observable {
             // reset maxRow
             maxRow = length;
         }
+        // always set back to north
         this.board.setViewingPerspective(Side.NORTH);
 
         checkGameOver();
