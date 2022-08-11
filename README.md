@@ -71,6 +71,9 @@ time: *2022.08.08*
 
 time: *2022.08.11*
 
+- lab2setup
+  - you may move directory of  `javalib`  from `...\library-sp21\library-sp21\javalib`to  `...\library-sp21\javalib` (i.e. you should **delete a  `library-sp21`**), so `masterpom.xml` could be used. 
+  - you also could change `Project Strcuture` ,`Maven` and `Compiler/Java Comiler` by using google or bing.
 - debug
   - stepping into
     the *step into* from the previous exercise shows the literal next step of the program
@@ -78,7 +81,6 @@ time: *2022.08.11*
     the *step over* button allows us to complete a function call without showing the function executing.
   - stepping out
     If you find yourself accidentally stepping into one of these two functions, use the *step out* to escape
-
 - math
   `0`, `1` are not prime
 
