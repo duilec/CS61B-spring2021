@@ -16,7 +16,7 @@ This is my solution about homework, lab and project in CS61B spring2021
   - [ ] hw3
 - lab
   - [x] lab1
-  - [ ] lab2
+  - [x] lab2
   - [ ] lab3
   - [ ] ...
 - project
@@ -25,13 +25,17 @@ This is my solution about homework, lab and project in CS61B spring2021
   - [ ] proj3
   - [ ] ...
 
-## hw0
+## homeworks
+
+### hw0
 
 time: *2022.08.09*
 
 - I only write a version of "for" in `GetMax`
 
-## lab1
+## labs
+
+### lab1
 
 time: *2022.08.08*
 
@@ -63,7 +67,24 @@ time: *2022.08.08*
   git push origin main
   ```
 
-## proj1
+### lab2
+
+time: *2022.08.11*
+
+- debug
+  - stepping into
+    the *step into* from the previous exercise shows the literal next step of the program
+  - stepping over
+    the *step over* button allows us to complete a function call without showing the function executing.
+  - stepping out
+    If you find yourself accidentally stepping into one of these two functions, use the *step out* to escape
+
+- math
+  `0`, `1` are not prime
+
+## projects
+
+### proj1
 
 time: *2022.08.09*
 
