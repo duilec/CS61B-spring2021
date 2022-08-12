@@ -22,7 +22,30 @@ public class TimeSLList {
     }
 
     public static void timeGetLast() {
-        // TODO: YOUR CODE HERE
+        AList<Integer> Ns = new AList<Integer>();
+        AList<Double> times = new AList<Double>();
+        AList<Integer> opCounts = new AList<Integer>();
+        int M = 10000;
+        for (int i = 1000; i <= 128000; i *= 2 ){
+            Ns.addLast(i);
+            SLList<Integer> testSLList = new SLList<Integer>();
+            for (int j = 0; j < i; j++){
+                testSLList.addLast(i);
+            }
+            double startTime = System.currentTimeMillis();
+            int opCount = 0;
+            for (int j = 0; j < M; j++){
+                testSLList.getLast();
+                opCount += 1;
+            }
+            double endTime = System.currentTimeMillis();
+            double time = (endTime - startTime) / 1000;
+            opCounts.addLast(opCount);
+            times.addLast(time);
+        }
+        // we must travel all node in SLList to get the last node,
+        // so getlast() is slow in the big SLList
+        printTimingTable(Ns, times, opCounts);
     }
 
 }
