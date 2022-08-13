@@ -17,21 +17,13 @@ This is my solution about homework, lab and project in CS61B spring2021
 - lab
   - [x] lab1
   - [x] lab2
-  - [ ] lab3
+  - [x] lab3
   - [ ] ...
 - project
   - [x] proj1
   - [ ] proj2
   - [ ] proj3
   - [ ] ...
-
-## homeworks
-
-### hw0
-
-time: *2022.08.09*
-
-- I only write a version of "for" in `GetMax`
 
 ## labs
 
@@ -132,3 +124,11 @@ time: *2022.08.09*
   ```
 
   initialize variable is  `k = 0`, condition is `k < tiles.length`, **but increment is `i++` not `k++`** lead to infinite loop. So, we should carefully **change variable one by one**, **when using a copy**.
+  
+## homeworks
+
+### hw0
+
+time: *2022.08.09*
+
+- I only write a version of "for" in `GetMax`
