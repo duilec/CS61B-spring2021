@@ -84,6 +84,37 @@ time: *2022.08.11*
 - math
   `0`, `1` are not prime
 
+### lab3
+
+- debug: 
+  - resume
+    Note that every time you click resume, the code is running (as if you pressed step-over a bunch of times) until it **gets back to the breakpoint again**.
+    
+  - condition breakpoint
+    **Right-click on your breakpoint and you’ll see a box pop up that says “Condition:”**. In the box, type `L.size() == 12`.
+    ![image-20220813114451968](https://s2.loli.net/2022/08/13/7sw8YPKHFgaIrDx.png)
+    
+  - execution breakpoint
+    we can stop the code and visualize what’s going on **when your code crashes**.
+    two step
+
+    1. click “Run -> View Breakpoints”, you should see a window like this pop up.
+    
+    2. Click on the checkbox on the left that says “any exception” and then click on that says “Condition:” and in the window and enter exactly:
+    
+       ```java
+       // eg: 
+       this instanceof java.lang.ArrayIndexOutOfBoundsException
+       ```
+
+  - **don't need main() in test of Junit**
+  - log
+    Often it is useful to “log” rather than print out the function calls made by randomized tests.
+For more on this, complete the project 1 extra credit assignment.
+- use **randomized** tests
+  Use Fixed Data Instead of Randomized Data Avoid randomized data as it can lead to toggling tests which can be hard to debug and omit error messages that make tracing the error back to the code harder. They will create highly reproducible tests, which are **easy to debug and create error messages** that can be easily traced back to the relevant line of code. 
+  See [this thread](https://news.ycombinator.com/item?id=24349522) for a debate on this issue.
+
 ## projects
 
 ### proj1
