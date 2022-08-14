@@ -62,7 +62,7 @@ public class ArrayDeque<T> {
     private void resize(int capacity, boolean isAdd) {
         T[] newItems = (T[]) new Object[capacity];
         // if resize() called by addFirst/Last, keeping copy to all old items in middle part(from "size/2" to "size/2 + size - 1")
-        // otherwise, resize() called by removeFirst/Last, keeping the copy to all old items in index of 0
+        // otherwise, resize() called by removeFirst/Last, keeping the copy to all old items from index of 0
         // note: "size" is old "size"
         if (isAdd){
             System.arraycopy(items, nextLast, newItems, size / 2, size - nextLast);
@@ -148,7 +148,7 @@ public class ArrayDeque<T> {
     }
 
     /** Gets the ith item in the deque (0 is the front). */
-    // note: we add first from 0 to 3, then, the list is "3->2->1->1->0", the "3" is first
+    // note: when add first from 0 to 3, then, the list is "3->2->1->1->0", the "3" is first
     public T get(int i) {
          int index = nextFirst + i + 1;
          if (index > 0){
