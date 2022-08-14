@@ -78,6 +78,8 @@ time: *2022.08.11*
 
 ### lab3
 
+time: *2022.08.13*
+
 - debug: 
   - resume
     Note that every time you click resume, the code is running (as if you pressed step-over a bunch of times) until it **gets back to the breakpoint again**.
@@ -109,9 +111,10 @@ For more on this, complete the project 1 extra credit assignment.
 
 ## projects
 
-### proj1
+### proj0
 
-time: *2022.08.09*
+start time: *2022.08.09*
+end time: *2022.08.09*
 
 - keeping patient when reading English text
 
@@ -124,8 +127,36 @@ time: *2022.08.09*
   ```
 
   initialize variable is  `k = 0`, condition is `k < tiles.length`, **but increment is `i++` not `k++`** lead to infinite loop. So, we should carefully **change variable one by one**, **when using a copy**.
-  
-## homeworks
+### proj1
+
+start time: *2022.08.13*
+end time: *2022.08.xx*
+
+- package
+  - When **creating a package**, we specify that code is part of a package by specifying the package name at the top of the file using the `package` keyword.
+  - Typically, package names are the internet address of the entity writing the code, **but backwards**. For example, the JUnit library is hosted at `junit.org`, so the package is called `org.junit`.
+- proj1 checkpoint
+  - before doing proj1 checkpoint
+    **Strongly recommend**: See the [project 1 demo slides](https://docs.google.com/presentation/d/1XBJOht0xWz1tEvLuvOL4lOIaY0NSfArXAvqgkrx0zpc/edit#slide=id.g1094ff4355_0_450) for more details.
+    
+  - if you need more token to test in gradescope, you could create new account
+
+  - note:
+    
+    - `mod %`
+    
+      `-1 % 32 == -1` in java, `-1 % 32 == 31` in python3
+    
+    - add first
+       when adding first from `0` to `3`, then, the list is `3->2->1->1->0`, the `3` is first
+    
+  - tips about `add` and `remove`
+
+    - if `resize()` called by `addFirst/Last`, keeping copy to all old items in **middle part** (from "size/2" to "size/2 + size - 1"). Otherwise, `resize()` called by `removeFirst/Las`t, keeping the copy to all old items **from index of 0**
+
+    - keeping circular deque, **the index of first after `nextFirst`** and **the index of last before `nextLast`**
+
+## homework
 
 ### hw0
 
