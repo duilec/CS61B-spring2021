@@ -140,13 +140,8 @@ public class ArrayDeque<T> {
 
     /** Gets the ith item in the deque (0 is the front). */
     public T get(int i) {
-        int index = 0;
-         if (nextFirst + nextLast < size){
-             index = nextFirst + i + 1;
-         } else {
-             index = nextLast - i - 1;
-         }
-         if (index >= 0){
+         int index = nextFirst + i + 1;
+         if (index > 0){
              return items[index % items.length];
          }
         return items[index + items.length];

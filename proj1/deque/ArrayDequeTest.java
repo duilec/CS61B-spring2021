@@ -138,10 +138,10 @@ public class ArrayDequeTest {
     public void addGetTest() {
 
         ArrayDeque<Integer> lld1 = new ArrayDeque<Integer>();
-        for (int i = 0; i < 100000; i++) {
+        for (int i = 0; i < 100; i++) {
             lld1.addLast(i);
         }
-        for (int i = 0; i < 100000; i++) {
+        for (int i = 0; i < 100; i++) {
             assertEquals("Should have the same value", i, lld1.get(i), 0.0);
         }
     }
@@ -151,11 +151,13 @@ public class ArrayDequeTest {
     public void addGetTest2() {
 
         ArrayDeque<Integer> lld1 = new ArrayDeque<Integer>();
-        for (int i = 0; i < 100000; i++) {
+        for (int i = 0; i < 100; i++) {
             lld1.addFirst(i);
         }
-        for (int i = 0; i < 100000; i++) {
-            assertEquals("Should have the same value", i, lld1.get(i), 0.0);
+        int index = 0;
+        for (int i = 99; i >= 0; i--) {
+            assertEquals("Should have the same value", i, lld1.get(index), 0.0);
+            index += 1;
         }
     }
 }
