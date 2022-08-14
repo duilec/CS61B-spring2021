@@ -61,8 +61,11 @@ public class ArrayDeque<T> {
     /** Resizes the underlying array to the target capacity. */
     private void resize(int capacity, boolean isAdd) {
         T[] newItems = (T[]) new Object[capacity];
+        // if resize() called by addFirst/Last, keeping copy to all old items in middle part(from "size/2" to "size/2 + size - 1")
+        // otherwise, resize() called by removeFirst/Last, keeping the copy to all old items in index of 0
+        // note: "size" is old "size"
         if (isAdd){
-            System.arraycopy(items, nextLast % items.length, newItems, size / 2, size - nextLast);
+            System.arraycopy(items, nextLast, newItems, size / 2, size - nextLast);
             System.arraycopy(items, 0, newItems, (size - nextLast) + size / 2, nextLast);
         } else {
             System.arraycopy(items, (nextFirst + 1) % items.length, newItems, 0, size);
@@ -74,6 +77,8 @@ public class ArrayDeque<T> {
     public void addFirst(T item){
         if (size == items.length) {
             resize(size * 2, true);
+            // keep circular deque,
+            // the index of first after nextFirst and the index of last before nextLast
             nextFirst = (size / 2) - 1;
             nextLast = size / 2 + size;
         }
@@ -91,6 +96,8 @@ public class ArrayDeque<T> {
     public void addLast(T item) {
         if (size == items.length) {
             resize(size * 2, true);
+            // keep circular deque,
+            // the index of first after nextFirst and the index of last before nextLast
             nextFirst = (size / 2) - 1;
             nextLast = size / 2 + size;
         }
@@ -106,6 +113,7 @@ public class ArrayDeque<T> {
         }
         if ((size < items.length / 4) && (size > 4)) {
             resize(items.length / 4, false);
+            // After reducing to 25%, nextFirst and nextLast resets to new "size"
             nextFirst = size;
             nextLast = size;
         }
@@ -123,6 +131,7 @@ public class ArrayDeque<T> {
         }
         if ((size < items.length / 4) && (size > 4)) {
             resize(items.length / 4,false);
+            // After reducing to 25%, nextFirst and nextLast resets to new "size"
             nextFirst = size;
             nextLast = size;
         }
@@ -139,6 +148,7 @@ public class ArrayDeque<T> {
     }
 
     /** Gets the ith item in the deque (0 is the front). */
+    // note: we add first from 0 to 3, then, the list is "3->2->1->1->0", the "3" is first
     public T get(int i) {
          int index = nextFirst + i + 1;
          if (index > 0){
