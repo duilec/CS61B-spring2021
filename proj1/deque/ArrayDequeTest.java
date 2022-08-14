@@ -132,4 +132,30 @@ public class ArrayDequeTest {
             assertEquals("Should have the same value", i, (double) lld1.removeFirst(), 0.0);
         }
     }
+
+    @Test
+    /* Add large number of elements to deque; check if order is correct. */
+    public void addGetTest() {
+
+        ArrayDeque<Integer> lld1 = new ArrayDeque<Integer>();
+        for (int i = 0; i < 100000; i++) {
+            lld1.addLast(i);
+        }
+        for (int i = 0; i < 100000; i++) {
+            assertEquals("Should have the same value", i, lld1.get(i), 0.0);
+        }
+    }
+
+    @Test
+    /* Add large number of elements to deque; check if order is correct. */
+    public void addGetTest2() {
+
+        ArrayDeque<Integer> lld1 = new ArrayDeque<Integer>();
+        for (int i = 0; i < 100000; i++) {
+            lld1.addFirst(i);
+        }
+        for (int i = 0; i < 100000; i++) {
+            assertEquals("Should have the same value", i, lld1.get(i), 0.0);
+        }
+    }
 }
