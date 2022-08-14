@@ -152,7 +152,7 @@ end time: *2022.08.xx*
     
   - tips about `add` and `remove`
 
-    - if `resize()` called by `addFirst/Last`, keeping copy to all old items in **middle part** (from "size/2" to "size/2 + size - 1"). Otherwise, `resize()` called by `removeFirst/Las`t, keeping the copy to all old items **from index of 0**
+    - if `resize()` called by `addFirst/Last`, copy to all old items in **middle part** (from "size/2" to "size/2 + size - 1"). Otherwise, `resize()` called by `removeFirst/Last`, copy to all old items **from index of first**
 
     - keeping circular deque, **the index of first after `nextFirst`** and **the index of last before `nextLast`**
 
