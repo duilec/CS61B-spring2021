@@ -23,29 +23,49 @@ package deque;
 //public T removeLast() 25%
 //public T get(int index)
 
+//b03) AD-basic: fill up, empty, fill up again. (0.0/1.333)
+//    Test Failed!
+//            Failed on 1th removeFirst() operation in ArrayDeque expected:<6> but was:<7>
+//        at AGTestArrayDeque.fillUpEmptyFillUpAgain:96 (AGTestArrayDeque.java)
+//        at AGTestArrayDeque.fillUpEmptyFillUpTest:110 (AGTestArrayDeque.java)
+//b04) AD-basic: multiple ADs. (0.0/1.333)
+//    Test Failed!
+//            Failed on 1th removeFirst() operation in ArrayDeque 1 expected:<6> but was:<7>
+//        at AGTestArrayDeque.twoArrayDequesTest:138 (AGTestArrayDeque.java)
+//        at AGTestArrayDeque.multiADTest:149 (AGTestArrayDeque.java)
+//b06) AD-basic: negative size. (0.0/1.333)
+//    Test Failed!
+//            java.lang.ArrayIndexOutOfBoundsException: Index -2 out of bounds for length 8
+//            at deque.ArrayDeque.removeLast:83 (ArrayDeque.java)
+//            at AGTestArrayDeque.negSizeTest:177 (AGTestArrayDeque.java)
+
+//  We strongly recommend that you treat your array as circular for this exercise.
+//  In other words, if your front item is at position zero, and you addFirst,
+//  the new front should loop back around to the end of the array
+//  (so the new front item in the deque will be the last item in the underlying array).
+
 public class ArrayDeque<T> {
     private T[] items;
     private int size;
+    private int nextFirst;
+    private int nextLast;
 
     /** Creates an empty Array deque. */
     public ArrayDeque() {
         items = (T[]) new Object[8];
         size = 0;
+        nextFirst = 8 / 2;
+        nextLast = (8 / 2) + 1;
     }
 
-    /** Resizes the underlying array to the target capacity.
-     * changed = 0, copying: underlying array from items[0], target array from newItems[0]
-     * changed = 1, copying: underlying array from items[0], target array from newItems[1]
-     * changed = 2, copying: underlying array from items[1], target array from newItems[0]
-     * */
-    private void resize(int capacity, int changed) {
+    /** Resizes the underlying array to the target capacity. */
+    private void resize(int capacity, boolean isAdd) {
         T[] newItems = (T[]) new Object[capacity];
-        if (changed == 0){ // addLast() and removeLast()
-            System.arraycopy(items, 0, newItems, 0, size);
-        }else if (changed == 1){ // addFirst
-            System.arraycopy(items, 0, newItems, 1, size);
-        }else if (changed == 2){ // removeFirst
-            System.arraycopy(items, 1, newItems, 0, size);
+        if (isAdd){
+            System.arraycopy(items, nextLast % items.length, newItems, size / 2, size - nextLast);
+            System.arraycopy(items, 0, newItems, (size - nextLast) + size / 2, nextLast);
+        } else {
+            System.arraycopy(items, (nextFirst + 1) % items.length, newItems, 0, size);
         }
         items = newItems;
     }
@@ -53,22 +73,29 @@ public class ArrayDeque<T> {
     /** Adds item to the front of the deque. */
     public void addFirst(T item){
         if (size == items.length) {
-            resize(size * 2, 1);
-        } else {
-            for (int i = size; i > 0; i += 1){
-                items[i] = items[i - 1];
-            }
+            resize(size * 2, true);
+            nextFirst = (size / 2) - 1;
+            nextLast = size / 2 + size;
         }
-        items[0] = item;
+        // "-1 % items.length == -1" in java
+        items[nextFirst] = item;
+        if ((nextFirst - 1) % items.length == -1){
+            nextFirst = (nextFirst - 1) + items.length;
+        } else {
+            nextFirst = (nextFirst - 1) % items.length;
+        }
         size = size + 1;
     }
 
     /** Inserts X into the back of the deque. */
     public void addLast(T item) {
         if (size == items.length) {
-            resize(size * 2, 0);
+            resize(size * 2, true);
+            nextFirst = (size / 2) - 1;
+            nextLast = size / 2 + size;
         }
-        items[size] = item;
+        items[nextLast] = item;
+        nextLast = (nextLast + 1) % items.length;
         size = size + 1;
     }
 
@@ -77,15 +104,14 @@ public class ArrayDeque<T> {
         if (isEmpty()){
             return null;
         }
-        T item = items[0];
         if ((size < items.length / 4) && (size > 4)) {
-            resize(items.length / 4, 2);
-        } else {
-            for (int i = 0; i < size - 1; i += 1){
-                items[i] =  items[i + 1];
-            }
-            items[size - 1] = null;
+            resize(items.length / 4, false);
+            nextFirst = size;
+            nextLast = size;
         }
+        nextFirst = (nextFirst + 1) % items.length;
+        T item = items[nextFirst];
+        items[nextFirst] = null;
         size = size - 1;
         return item;
     }
@@ -95,11 +121,19 @@ public class ArrayDeque<T> {
         if (isEmpty()){
             return null;
         }
-        T item = items[size - 1];
         if ((size < items.length / 4) && (size > 4)) {
-            resize(items.length / 4, 0);
+            resize(items.length / 4,false);
+            nextFirst = size;
+            nextLast = size;
         }
-        items[size - 1] = null;
+        // "-1 % items.length == -1" in java
+        if ((nextLast - 1) % items.length == -1){
+            nextLast = (nextLast - 1) + items.length;
+        } else {
+            nextLast = (nextLast - 1) % items.length;
+        }
+        T item = items[nextLast];
+        items[nextLast] = null;
         size = size - 1;
         return item;
     }
@@ -124,15 +158,17 @@ public class ArrayDeque<T> {
     /** Prints the items in the deque from first to last, separated by a space.
      * Once all the items have been printed, print out a new line. */
     public void printDeque(){
-        // TODO
-        for (int i = 0; i < size; i += 1){
-            if (i == size - 1){
-                System.out.println(items[i]);
+        int tempSize = size();
+        int cnt = nextFirst + 1;
+        while(tempSize > 0){
+            if (tempSize == 1){
+                System.out.println(items[cnt]);
                 return;
             }
-            System.out.print(items[i]+" -> ");
+            System.out.print(items[cnt]+" -> ");
+            cnt = (cnt + 1) % items.length;
+            tempSize -= 1;
         }
-
     }
 }
 

@@ -2,10 +2,29 @@ package deque;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
+import edu.princeton.cs.algs4.StdRandom;
 
 
 /** Performs some basic linked list tests. */
 public class LinkedListDequeTest {
+
+    @Test
+    public void fillUpEmptyFillUpTest(){
+        LinkedListDeque<Integer> lld = new LinkedListDeque<Integer>();
+
+        int N = 100;
+        for (int i = 0; i < N; i += 1){
+            lld.addLast(i);
+        }
+        for (int i = 0; i < N; i += 1){
+            int expected = i;
+            int actual = lld.removeFirst();
+            assertEquals(expected, actual);
+        }
+        for (int i = 0; i < N; i += 1){
+            lld.addLast(i);
+        }
+    }
 
     @Test
     /** Adds a few things to the list, checking isEmpty() and size() are correct,

@@ -105,6 +105,9 @@ public class LinkedListDeque<T> {
 
     /** Gets the item at the given index, where 0 is the front, 1 is the next item, and so forth. */
     public T get(int i){
+        if (isEmpty() || i < 0){
+            return null;
+        }
         Node p = sentinel.next;
         int count = 0;
         /* Advance p to the end of the deque. */
@@ -121,6 +124,9 @@ public class LinkedListDeque<T> {
     /** Gets the item at the given index, where 0 is the front, 1 is the next item, and so forth.
      * but uses recursion*/
     public T getRecursive(int i){
+        if (isEmpty() || i < 0){
+            return null;
+        }
         return getRecursiveHelper(i, sentinel.next);
     }
 

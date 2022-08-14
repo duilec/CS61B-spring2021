@@ -102,20 +102,34 @@ public class ArrayDequeTest {
     public void bigLLDequeTest() {
 
         ArrayDeque<Integer> lld1 = new ArrayDeque<Integer>();
-        for (int i = 0; i < 1000000; i++) {
+        for (int i = 0; i < 100000; i++) {
             lld1.addLast(i);
         }
 
-        double startTime = System.currentTimeMillis();
-        for (double i = 0; i < 500000; i++) {
+        for (double i = 0; i < 50000; i++) {
             assertEquals("Should have the same value", i, (double) lld1.removeFirst(), 0.0);
         }
-        double endTime = System.currentTimeMillis();
-        System.out.println((startTime - endTime) / 1000);
 
-        for (double i = 999999; i > 500000; i--) {
+        for (double i = 99999; i > 50000; i--) {
+            assertEquals("Should have the same value", i, (double) lld1.removeLast(), 0.0);
+        }
+    }
+
+    @Test
+    /* Add large number of elements to deque; check if order is correct. */
+    public void bigLLDequeTest2() {
+
+        ArrayDeque<Integer> lld1 = new ArrayDeque<Integer>();
+        for (int i = 0; i < 100000; i++) {
+            lld1.addFirst(i);
+        }
+
+        for (double i = 0; i < 50000; i++) {
             assertEquals("Should have the same value", i, (double) lld1.removeLast(), 0.0);
         }
 
+        for (double i = 99999; i > 50000; i--) {
+            assertEquals("Should have the same value", i, (double) lld1.removeFirst(), 0.0);
+        }
     }
 }
