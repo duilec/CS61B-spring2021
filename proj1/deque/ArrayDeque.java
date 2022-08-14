@@ -70,9 +70,14 @@ public class ArrayDeque<T> {
 
     /** Removes the front of the deque. */
     public T removeFirst(){
+        if (isEmpty()){
+            return null;
+        }
         T item = items[0];
         if ((size < items.length / 4) && (size > 4)) {
             resize(items.length / 4, 2);
+        } else {
+            resize(items.length, 2);
         }
         size = size - 1;
         return item;
@@ -80,6 +85,9 @@ public class ArrayDeque<T> {
 
     /** Removes the back of the deque. */
     public T removeLast(){
+        if (isEmpty()){
+            return null;
+        }
         T item = items[size - 1];
         if ((size < items.length / 4) && (size > 4)) {
             resize(items.length / 4, 0);
@@ -111,9 +119,13 @@ public class ArrayDeque<T> {
     public void printDeque(){
         // TODO
         for (int i = 0; i < size; i += 1){
+            if (i == size - 1){
+                System.out.println(items[i]);
+                return;
+            }
             System.out.print(items[i]+" -> ");
         }
-        System.out.println();
+
     }
 }
 

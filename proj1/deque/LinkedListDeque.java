@@ -14,6 +14,18 @@ package deque;
 //public T removeLast()
 //public T get(int index)
 
+//Testing deque.LinkedListDeque.java
+//            The following interfaces are missing:
+//            *  Iterable<T>
+//
+//The following constructors should be removed:
+//        *  public deque.LinkedListDeque(T)
+//
+//        The following methods are missing:
+//        *  public T getRecursive(int)
+//        *  public boolean equals(Object)
+//        *  public java.util.Iterator<T> iterator()
+
 public class LinkedListDeque<T> {
     private class Node {
         public T item;
@@ -39,13 +51,13 @@ public class LinkedListDeque<T> {
         size = 0;
     }
 
-    /** Creates a LinkedListDeque with an element of item. */
-    public LinkedListDeque(T item) {
-        sentinel = new Node(null, null, null);
-        sentinel.next = new Node(item, sentinel, sentinel);
-        sentinel.prev = sentinel.next;
-        size = 1;
-    }
+//    /** Creates a LinkedListDeque with an element of item. */
+//    public LinkedListDeque(T item) {
+//        sentinel = new Node(null, null, null);
+//        sentinel.next = new Node(item, sentinel, sentinel);
+//        sentinel.prev = sentinel.next;
+//        size = 1;
+//    }
 
     /** Adds item to the front of the deque. */
     public void addFirst(T item) {
@@ -65,7 +77,7 @@ public class LinkedListDeque<T> {
 
     /** Removes the front of the deque. */
     public T removeFirst() {
-        if (sentinel.next == sentinel){
+        if (isEmpty()){
             return null;
         }
         Node oldFront = sentinel.next;
@@ -79,7 +91,7 @@ public class LinkedListDeque<T> {
 
     /** Removes the back of the deque. */
     public T removeLast() {
-        if (sentinel.next == sentinel){
+        if (isEmpty()){
             return null;
         }
         Node oldBack = sentinel.prev;
@@ -108,18 +120,18 @@ public class LinkedListDeque<T> {
 
     /** Gets the item at the given index, where 0 is the front, 1 is the next item, and so forth.
      * but uses recursion*/
-    public T getRecursion(int i){
-        return getRecursionHelper(i, sentinel.next);
+    public T getRecursive(int i){
+        return getRecursiveHelper(i, sentinel.next);
     }
 
-    private T getRecursionHelper(int i, Node p){
+    private T getRecursiveHelper(int i, Node p){
         if (p == sentinel){
             return null;
         }
         if (i == 0){
             return p.item;
         }
-        return getRecursionHelper(i - 1, p.next);
+        return getRecursiveHelper(i - 1, p.next);
     }
 
     /** Returns the number of items in the deque. */
