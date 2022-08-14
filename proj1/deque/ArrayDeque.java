@@ -23,27 +23,6 @@ package deque;
 //public T removeLast() 25%
 //public T get(int index)
 
-//b03) AD-basic: fill up, empty, fill up again. (0.0/1.333)
-//    Test Failed!
-//            Failed on 1th removeFirst() operation in ArrayDeque expected:<6> but was:<7>
-//        at AGTestArrayDeque.fillUpEmptyFillUpAgain:96 (AGTestArrayDeque.java)
-//        at AGTestArrayDeque.fillUpEmptyFillUpTest:110 (AGTestArrayDeque.java)
-//b04) AD-basic: multiple ADs. (0.0/1.333)
-//    Test Failed!
-//            Failed on 1th removeFirst() operation in ArrayDeque 1 expected:<6> but was:<7>
-//        at AGTestArrayDeque.twoArrayDequesTest:138 (AGTestArrayDeque.java)
-//        at AGTestArrayDeque.multiADTest:149 (AGTestArrayDeque.java)
-//b06) AD-basic: negative size. (0.0/1.333)
-//    Test Failed!
-//            java.lang.ArrayIndexOutOfBoundsException: Index -2 out of bounds for length 8
-//            at deque.ArrayDeque.removeLast:83 (ArrayDeque.java)
-//            at AGTestArrayDeque.negSizeTest:177 (AGTestArrayDeque.java)
-
-//  We strongly recommend that you treat your array as circular for this exercise.
-//  In other words, if your front item is at position zero, and you addFirst,
-//  the new front should loop back around to the end of the array
-//  (so the new front item in the deque will be the last item in the underlying array).
-
 public class ArrayDeque<T> {
     private T[] items;
     private int size;
@@ -61,8 +40,8 @@ public class ArrayDeque<T> {
     /** Resizes the underlying array to the target capacity. */
     private void resize(int capacity, boolean isAdd) {
         T[] newItems = (T[]) new Object[capacity];
-        // if resize() called by addFirst/Last, keeping copy to all old items in middle part(from "size/2" to "size/2 + size - 1")
-        // otherwise, resize() called by removeFirst/Last, keeping the copy to all old items from index of 0
+        // if resize() called by addFirst/Last, copy to all old items in middle part(from "size/2" to "size/2 + size - 1")
+        // otherwise, resize() called by removeFirst/Last, copy to all old items from index of first
         // note: "size" is old "size"
         if (isAdd){
             System.arraycopy(items, nextLast, newItems, size / 2, size - nextLast);

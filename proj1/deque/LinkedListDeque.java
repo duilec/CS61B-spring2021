@@ -14,18 +14,6 @@ package deque;
 //public T removeLast()
 //public T get(int index)
 
-//Testing deque.LinkedListDeque.java
-//            The following interfaces are missing:
-//            *  Iterable<T>
-//
-//The following constructors should be removed:
-//        *  public deque.LinkedListDeque(T)
-//
-//        The following methods are missing:
-//        *  public T getRecursive(int)
-//        *  public boolean equals(Object)
-//        *  public java.util.Iterator<T> iterator()
-
 public class LinkedListDeque<T> {
     private class Node {
         public T item;
