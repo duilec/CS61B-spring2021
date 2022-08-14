@@ -149,7 +149,7 @@ public class ArrayDequeTest {
 
     @Test
     /* Add large number of elements to deque; check if order is correct. */
-    // note: we add First from 0 to 3, then, the list is "3->2->1->1->0", the "3" is first
+    // note: we add First from 0 to 3, then, the list is "3->2->1->0", the "3" is first
     public void addGetTest2() {
 
         ArrayDeque<Integer> lld1 = new ArrayDeque<Integer>();

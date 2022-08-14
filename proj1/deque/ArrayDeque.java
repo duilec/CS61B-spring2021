@@ -148,7 +148,7 @@ public class ArrayDeque<T> {
     }
 
     /** Gets the ith item in the deque (0 is the front). */
-    // note: when add first from 0 to 3, then, the list is "3->2->1->1->0", the "3" is first
+    // note: when add first from 0 to 3, then, the list is "3->2->1->0", the "3" is first
     public T get(int i) {
          int index = nextFirst + i + 1;
          if (index > 0){
