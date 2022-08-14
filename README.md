@@ -148,7 +148,7 @@ end time: *2022.08.xx*
       `-1 % 32 == -1` in java, `-1 % 32 == 31` in python3
     
     - add first
-       when adding first from `0` to `3`, then, the list is `3->2->1->1->0`, the `3` is first
+       when adding first from `0` to `3`, then, the list is `3->2->1->0`, the `3` is first
     
   - tips about `add` and `remove`
 
