@@ -54,6 +54,10 @@ public class ArrayDeque<T> {
     public void addFirst(T item){
         if (size == items.length) {
             resize(size * 2, 1);
+        } else {
+            for (int i = size; i > 0; i += 1){
+                items[i] = items[i - 1];
+            }
         }
         items[0] = item;
         size = size + 1;
@@ -77,7 +81,10 @@ public class ArrayDeque<T> {
         if ((size < items.length / 4) && (size > 4)) {
             resize(items.length / 4, 2);
         } else {
-            resize(items.length, 2);
+            for (int i = 0; i < size - 1; i += 1){
+                items[i] =  items[i + 1];
+            }
+            items[size - 1] = null;
         }
         size = size - 1;
         return item;

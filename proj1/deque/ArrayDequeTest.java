@@ -106,9 +106,12 @@ public class ArrayDequeTest {
             lld1.addLast(i);
         }
 
+        double startTime = System.currentTimeMillis();
         for (double i = 0; i < 500000; i++) {
             assertEquals("Should have the same value", i, (double) lld1.removeFirst(), 0.0);
         }
+        double endTime = System.currentTimeMillis();
+        System.out.println((startTime - endTime) / 1000);
 
         for (double i = 999999; i > 500000; i--) {
             assertEquals("Should have the same value", i, (double) lld1.removeLast(), 0.0);
