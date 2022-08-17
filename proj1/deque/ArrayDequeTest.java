@@ -165,6 +165,7 @@ public class ArrayDequeTest {
     }
 
     @Test
+    /* test Iterator */
     public void addThenIteratorTest() {
         ArrayDeque<Integer> ad1 = new ArrayDeque<Integer>();
         for (int i = 0; i < 10000; i++) {
@@ -181,6 +182,7 @@ public class ArrayDequeTest {
     }
 
     @Test
+    /* test enhanced for with Iterator */
     public void ForIteratorTest() {
         ArrayDeque<Integer> ad1 = new ArrayDeque<Integer>();
         for (int i = 0; i < 10000; i++) {
@@ -192,5 +194,20 @@ public class ArrayDequeTest {
             assertEquals("Should have the same value", expected, i, 0.0);
             expected += 1;
         }
+    }
+
+    @Test
+    public void addThenEqualTest() {
+        ArrayDeque<Integer> ad1 = new ArrayDeque<Integer>();
+        for (int i = 0; i < 10000; i++) {
+            ad1.addLast(i);
+        }
+
+        ArrayDeque<Integer> ad2 = new ArrayDeque<Integer>();
+        for (int i = 0; i < 10000; i++) {
+            ad2.addLast(i);
+        }
+//        ad1.equals(ad2);
+        assertEquals(true, ad1.equals(ad2));
     }
 }

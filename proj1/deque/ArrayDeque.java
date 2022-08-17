@@ -157,6 +157,8 @@ public class ArrayDeque<T> implements Deque<T>{
         }
     }
 
+    // The Deque objects we’ll make are iterable (i.e. Iterable<T>)
+    // so we must provide this method to return an iterator.
     public Iterator<T> iterator(){
         return new ArrayDequeIterator();
     }
@@ -177,6 +179,27 @@ public class ArrayDeque<T> implements Deque<T>{
             cnt += 1;
             return returnItem;
         }
+    }
+
+    //Returns whether or nor the parameter o is equal to the Deque.
+    // o is considered equal if it is a Deque and if it contains the same contents
+    // (as goverened by the generic T’s equals method) in the same order.
+    // note: use "equals" instead of "==", when comparing of different type(T)
+    public boolean equals(Object o){
+        if (o instanceof ArrayDeque){
+            if (((ArrayDeque)o).size() != this.size()){
+                return false;
+            }
+            for(int i = 0; i < ((ArrayDeque)o).size(); i += 1){
+                T itemFromO =  (T)((ArrayDeque)o).get(i);
+                T itemFromThis = this.get(i);
+                if (!itemFromO.equals(itemFromThis)){
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 }
 

@@ -43,5 +43,22 @@ public class MaxArrayDeque<T> extends ArrayDeque<T> {
     public T max() {
         return max(comparator);
     }
+
+    public boolean equals(Object o){
+        if (o instanceof MaxArrayDeque){
+            if (((MaxArrayDeque)o).size() != this.size()){
+                return false;
+            }
+            for(int i = 0; i < ((MaxArrayDeque)o).size(); i += 1){
+                T itemFromO =  (T)((MaxArrayDeque)o).get(i);
+                T itemFromThis = this.get(i);
+                if (!itemFromO.equals(itemFromThis)){
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
 }
 

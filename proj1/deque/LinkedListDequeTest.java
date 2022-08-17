@@ -157,7 +157,7 @@ public class LinkedListDequeTest {
     }
 
     @Test
-    /* test enhanced for Iterator */
+    /* test enhanced for with Iterator */
     public void ForIteratorTest() {
         LinkedListDeque<Integer> lld = new LinkedListDeque<Integer>();
         for (int i = 0; i < 10000; i++) {
@@ -170,4 +170,20 @@ public class LinkedListDequeTest {
             expected += 1;
         }
     }
+
+    @Test
+    public void addThenEqualTest() {
+        LinkedListDeque<Integer> lld1 = new LinkedListDeque<Integer>();
+        for (int i = 0; i < 100000; i++) {
+            lld1.addLast(i);
+        }
+
+        LinkedListDeque<Integer> lld2 = new LinkedListDeque<Integer>();
+        for (int i = 0; i < 100000; i++) {
+            lld2.addLast(i);
+        }
+
+        assertEquals(true, lld1.equals(lld1));
+    }
 }
+

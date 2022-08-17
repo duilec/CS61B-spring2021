@@ -56,9 +56,22 @@ public class MaxArrayDequeTest {
         }
     }
 
-
     @Test
     public void maxWithStringLengthComparatorTest() {
+        StringLengthComparator stringLengthComparator = new StringLengthComparator();
+        MaxArrayDeque<String> maxArrayDeque= new MaxArrayDeque<>(stringLengthComparator);
+
+        maxArrayDeque.addFirst("HelloWorld");
+        maxArrayDeque.addFirst("Hello World!");
+
+        assertEquals("Hello World!", maxArrayDeque.max());
+        assertEquals("Hello World!", maxArrayDeque.max(stringLengthComparator));
     }
 
+    private static class StringLengthComparator implements Comparator<String>{
+        @Override
+        public int compare(String d1, String d2){
+            return d1.length() - d2.length();
+        }
+    }
 }
