@@ -198,16 +198,16 @@ public class ArrayDequeTest {
 
     @Test
     public void addThenEqualTest() {
-        ArrayDeque<Integer> ad1 = new ArrayDeque<Integer>();
+        ArrayDeque<Integer> ad = new ArrayDeque<Integer>();
         for (int i = 0; i < 10000; i++) {
-            ad1.addLast(i);
+            ad.addLast(i);
         }
 
-        ArrayDeque<Integer> ad2 = new ArrayDeque<Integer>();
+        LinkedListDeque<Integer> lld = new LinkedListDeque<Integer>();
         for (int i = 0; i < 10000; i++) {
-            ad2.addLast(i);
+            lld.addLast(i);
         }
-//        ad1.equals(ad2);
-        assertEquals(true, ad1.equals(ad2));
+
+        assertEquals(true, ad.equals(lld));
     }
 }

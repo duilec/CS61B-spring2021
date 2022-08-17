@@ -186,12 +186,12 @@ public class ArrayDeque<T> implements Deque<T>{
     // (as goverened by the generic T’s equals method) in the same order.
     // note: use "equals" instead of "==", when comparing of different type(T)
     public boolean equals(Object o){
-        if (o instanceof ArrayDeque){
-            if (((ArrayDeque)o).size() != this.size()){
+        if (o instanceof Deque){
+            if (((Deque)o).size() != this.size()){
                 return false;
             }
-            for(int i = 0; i < ((ArrayDeque)o).size(); i += 1){
-                T itemFromO =  (T)((ArrayDeque)o).get(i);
+            for(int i = 0; i < ((Deque)o).size(); i += 1){
+                T itemFromO =  (T)((Deque)o).get(i);
                 T itemFromThis = this.get(i);
                 if (!itemFromO.equals(itemFromThis)){
                     return false;

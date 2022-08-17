@@ -173,17 +173,17 @@ public class LinkedListDequeTest {
 
     @Test
     public void addThenEqualTest() {
-        LinkedListDeque<Integer> lld1 = new LinkedListDeque<Integer>();
-        for (int i = 0; i < 100000; i++) {
-            lld1.addLast(i);
+        LinkedListDeque<Integer> lld = new LinkedListDeque<Integer>();
+        for (int i = 0; i < 10000; i++) {
+            lld.addFirst(i);
         }
 
-        LinkedListDeque<Integer> lld2 = new LinkedListDeque<Integer>();
-        for (int i = 0; i < 100000; i++) {
-            lld2.addLast(i);
+        ArrayDeque<Integer> ad = new ArrayDeque<Integer>();
+        for (int i = 0; i < 10000; i++) {
+            ad.addFirst(i);
         }
 
-        assertEquals(true, lld1.equals(lld1));
+        assertEquals(true, lld.equals(ad));
     }
 }
 
