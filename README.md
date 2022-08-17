@@ -163,7 +163,7 @@ end time: *2022.08.xx*
   - note
     - we use method of comparator to compare
     - we should have same name and signature when overriding.
-      so, we can't use `public double compare(Double d1, Double d2)`but only can use `public int compare(Double d1, Double d2)`
+      so, we can't use `public double compare(Double d1, Double d2)`but we can use `public int compare(Double d1, Double d2)`
 
 ## homework
 
