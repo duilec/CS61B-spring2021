@@ -15,7 +15,7 @@ import java.util.Iterator;
 //public T removeLast()
 //public T get(int index)
 
-public class ArrayDeque<T> implements Deque<T>{
+public class ArrayDeque<T> implements Deque<T> ,Iterable<T>{
     private T[] items;
     private int size;
     private int nextFirst;
