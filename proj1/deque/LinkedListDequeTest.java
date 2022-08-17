@@ -2,7 +2,7 @@ package deque;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
-import edu.princeton.cs.algs4.StdRandom;
+import java.util.Iterator;
 
 
 /** Performs some basic linked list tests. */
@@ -136,5 +136,38 @@ public class LinkedListDequeTest {
             assertEquals("Should have the same value", i, (double) lld1.removeLast(), 0.0);
         }
 
+    }
+
+    @Test
+    // little slow
+    /* test Iterator */
+    public void addThenIteratorTest() {
+        LinkedListDeque<Integer> lld = new LinkedListDeque<Integer>();
+        for (int i = 0; i < 10000; i++) {
+            lld.addLast(i);
+        }
+
+        Iterator<Integer> llder = lld.iterator();
+
+        int expected = 0;
+        while (llder.hasNext()) {
+            assertEquals("Should have the same value", expected, llder.next(), 0.0);
+            expected += 1;
+        }
+    }
+
+    @Test
+    /* test enhanced for Iterator */
+    public void ForIteratorTest() {
+        LinkedListDeque<Integer> lld = new LinkedListDeque<Integer>();
+        for (int i = 0; i < 10000; i++) {
+            lld.addLast(i);
+        }
+
+        int expected = 0;
+        for (int i : lld) {
+            assertEquals("Should have the same value", expected, i, 0.0);
+            expected += 1;
+        }
     }
 }

@@ -14,7 +14,7 @@ public class MaxArrayDequeTest {
         // construct an instance of class by using "new ClassName()"
         // when the class not pass argument to constructor
         IntComparator intComparator = new IntComparator();
-        MaxArrayDeque<Integer> maxArrayDeque= new MaxArrayDeque(intComparator);
+        MaxArrayDeque<Integer> maxArrayDeque= new MaxArrayDeque<>(intComparator);
         for (int i = 0; i <= 100000; i++){
             maxArrayDeque.addFirst(i);
         }
@@ -35,7 +35,7 @@ public class MaxArrayDequeTest {
     @Test
     public void maxWithDoubleComparatorTest() {
         DoubleComparator doubleComparator = new DoubleComparator();
-        MaxArrayDeque<Double> maxArrayDeque= new MaxArrayDeque(doubleComparator);
+        MaxArrayDeque<Double> maxArrayDeque= new MaxArrayDeque<>(doubleComparator);
         for (double i = 0; i <= 100000; i++){
             maxArrayDeque.addFirst(i);
         }

@@ -1,6 +1,6 @@
 package deque;
 
-import java.util.Comparator;
+import java.util.Iterator;
 
 /** Array Deque.
  *  @author Huang Jinhong
@@ -22,7 +22,7 @@ public class ArrayDeque<T> implements Deque<T>{
     private int nextLast;
 
     /** Creates an empty Array deque. */
-    public ArrayDeque() {
+    public ArrayDeque(){
         items = (T[]) new Object[8];
         size = 0;
         nextFirst = 8 / 2;
@@ -30,9 +30,10 @@ public class ArrayDeque<T> implements Deque<T>{
     }
 
     /** Resizes the underlying array to the target capacity. */
-    private void resize(int capacity, boolean isAdd) {
+    private void resize(int capacity, boolean isAdd){
         T[] newItems = (T[]) new Object[capacity];
-        // if resize() called by addFirst/Last, copy to all old items in middle part(from "size/2" to "size/2 + size - 1")
+        // if resize() called by addFirst/Last, copy to all old items in middle part
+        // (i.e. from "size/2" to "size/2 + size - 1")
         // otherwise, resize() called by removeFirst/Last, copy to all old items from index of first
         // note: "size" is old "size"
         if (isAdd){
@@ -66,7 +67,7 @@ public class ArrayDeque<T> implements Deque<T>{
 
     /** Inserts X into the back of the deque. */
     @Override
-    public void addLast(T item) {
+    public void addLast(T item){
         if (size == items.length) {
             resize(size * 2, true);
             // keep circular deque,
@@ -125,7 +126,7 @@ public class ArrayDeque<T> implements Deque<T>{
     /** Gets the ith item in the deque (0 is the front). */
     // note: when add first from 0 to 3, then, the list is "3->2->1->0", the "3" is first
     @Override
-    public T get(int i) {
+    public T get(int i){
          int index = nextFirst + i + 1;
          if (index > 0){
              return items[index % items.length];
@@ -135,7 +136,7 @@ public class ArrayDeque<T> implements Deque<T>{
 
     /** Returns the number of items in the deque. */
     @Override
-    public int size() {
+    public int size(){
         return size;
     }
 
@@ -153,6 +154,28 @@ public class ArrayDeque<T> implements Deque<T>{
             System.out.print(items[cnt]+" -> ");
             cnt = (cnt + 1) % items.length;
             tempSize -= 1;
+        }
+    }
+
+    public Iterator<T> iterator(){
+        return new ArrayDequeIterator();
+    }
+
+    private class ArrayDequeIterator implements Iterator<T> {
+        private int cnt;
+
+        public ArrayDequeIterator() {
+            cnt = 0;
+        }
+
+        public boolean hasNext() {
+            return cnt < size();
+        }
+
+        public T next() {
+            T returnItem = get(cnt);
+            cnt += 1;
+            return returnItem;
         }
     }
 }
