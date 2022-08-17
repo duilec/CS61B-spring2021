@@ -140,7 +140,7 @@ end time: *2022.08.xx*
   
   - before doing proj1 checkpoint
     **Strongly recommend**: See the [project 1 demo slides](https://docs.google.com/presentation/d/1XBJOht0xWz1tEvLuvOL4lOIaY0NSfArXAvqgkrx0zpc/edit#slide=id.g1094ff4355_0_450) for more details.
-    
+  
 - if you need more token to test in gradescope, you could create new account
   
   - note:
@@ -151,16 +151,22 @@ end time: *2022.08.xx*
     
     - add first
        when adding first from `0` to `3`, then, the list is `3->2->1->0`, the `3` is first
-    
+  
 - tips about `add` and `remove`
   
   - if `resize()` called by `addFirst/Last`, copy to all old items in **middle part** (from "size/2" to "size/2 + size - 1"). Otherwise, `resize()` called by `removeFirst/Last`, copy to all old items **from index of first**
   - keeping circular deque, **the index of first after `nextFirst`** and **the index of last before `nextLast`**
   
+- `iterator()` and `equals()`
+
+  - use `equals` instead of `==` when comparing of different type(`T`)
+  - **a class can implement one or more interfaces**.
+
 - `MaxArrayDeque`
 
   - You’ll likely be creating multiple `Comparator<T>` classes to test your code(i.e. we need build different comparator to test in `MaxArrayDeque`)
   - note
+    - Construct an instance of class by using `new ClassName()`, when the class **not pass argument to constructor**
     - we use method of comparator to compare
     - we should have same name and signature when overriding.
       so, we can't use `public double compare(Double d1, Double d2)`but we can use `public int compare(Double d1, Double d2)`
@@ -172,3 +178,4 @@ end time: *2022.08.xx*
 time: *2022.08.09*
 
 - I only write a version of "for" in `GetMax`
+
