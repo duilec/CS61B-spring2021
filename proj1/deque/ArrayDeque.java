@@ -1,26 +1,18 @@
 package deque;
 
+import java.util.Comparator;
+
 /** Array Deque.
  *  @author Huang Jinhong
  */
-
-//         0 1  2 3 4 5 6 7
-// items: [6 9 -1 2 0 0 0 0 ...]
-// size: 5
-
-/* Invariants:
- addLast: The next item we want to add, will go into position size
- getLast: The item we want to return is in position size - 1
- size: The number of items in the deque should be size.
-*/
 
 //public void addFirst(T item)
 //public void addLast(T item)
 //public boolean isEmpty()
 //public int size()
 //public void printDeque()
-//public T removeFirst() 25%
-//public T removeLast() 25%
+//public T removeFirst()
+//public T removeLast()
 //public T get(int index)
 
 public class ArrayDeque<T> {
