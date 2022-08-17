@@ -14,7 +14,7 @@ package deque;
 //public T removeLast()
 //public T get(int index)
 
-public class LinkedListDeque<T> {
+public class LinkedListDeque<T> implements Deque<T>{
     private class Node {
         public T item;
         public Node prev;
@@ -48,6 +48,7 @@ public class LinkedListDeque<T> {
 //    }
 
     /** Adds item to the front of the deque. */
+    @Override
     public void addFirst(T item) {
         Node rest = sentinel.next;
         sentinel.next = new Node(item, sentinel, rest);
@@ -56,6 +57,7 @@ public class LinkedListDeque<T> {
     }
 
     /** Adds item to the back of the deque. */
+    @Override
     public void addLast(T item) {
         Node back = sentinel.prev;
         sentinel.prev = new Node(item, back, sentinel);
@@ -64,6 +66,7 @@ public class LinkedListDeque<T> {
     }
 
     /** Removes the front of the deque. */
+    @Override
     public T removeFirst() {
         if (isEmpty()){
             return null;
@@ -78,6 +81,7 @@ public class LinkedListDeque<T> {
     }
 
     /** Removes the back of the deque. */
+    @Override
     public T removeLast() {
         if (isEmpty()){
             return null;
@@ -92,6 +96,7 @@ public class LinkedListDeque<T> {
     }
 
     /** Gets the item at the given index, where 0 is the front, 1 is the next item, and so forth. */
+    @Override
     public T get(int i){
         if (isEmpty() || i < 0){
             return null;
@@ -129,20 +134,14 @@ public class LinkedListDeque<T> {
     }
 
     /** Returns the number of items in the deque. */
+    @Override
     public int size(){
         return size;
     }
 
-    /** Returns true if deque is empty, false otherwise.*/
-    public boolean isEmpty(){
-        if (size == 0){
-            return true;
-        }
-        return false;
-    }
-
     /** Prints the items in the deque from first to last, separated by a space.
      * Once all the items have been printed, print out a new line. */
+    @Override
     public void printDeque(){
         Node p = sentinel.next;
 

@@ -15,7 +15,7 @@ import java.util.Comparator;
 //public T removeLast()
 //public T get(int index)
 
-public class ArrayDeque<T> {
+public class ArrayDeque<T> implements Deque<T>{
     private T[] items;
     private int size;
     private int nextFirst;
@@ -45,6 +45,7 @@ public class ArrayDeque<T> {
     }
 
     /** Adds item to the front of the deque. */
+    @Override
     public void addFirst(T item){
         if (size == items.length) {
             resize(size * 2, true);
@@ -64,6 +65,7 @@ public class ArrayDeque<T> {
     }
 
     /** Inserts X into the back of the deque. */
+    @Override
     public void addLast(T item) {
         if (size == items.length) {
             resize(size * 2, true);
@@ -78,6 +80,7 @@ public class ArrayDeque<T> {
     }
 
     /** Removes the front of the deque. */
+    @Override
     public T removeFirst(){
         if (isEmpty()){
             return null;
@@ -96,6 +99,7 @@ public class ArrayDeque<T> {
     }
 
     /** Removes the back of the deque. */
+    @Override
     public T removeLast(){
         if (isEmpty()){
             return null;
@@ -120,6 +124,7 @@ public class ArrayDeque<T> {
 
     /** Gets the ith item in the deque (0 is the front). */
     // note: when add first from 0 to 3, then, the list is "3->2->1->0", the "3" is first
+    @Override
     public T get(int i) {
          int index = nextFirst + i + 1;
          if (index > 0){
@@ -129,19 +134,14 @@ public class ArrayDeque<T> {
     }
 
     /** Returns the number of items in the deque. */
+    @Override
     public int size() {
         return size;
     }
 
-    /** Returns true if deque is empty, false otherwise.*/
-    public boolean isEmpty(){
-        if (size == 0){
-            return true;
-        }
-        return false;
-    }
     /** Prints the items in the deque from first to last, separated by a space.
      * Once all the items have been printed, print out a new line. */
+    @Override
     public void printDeque(){
         int tempSize = size();
         int cnt = nextFirst + 1;

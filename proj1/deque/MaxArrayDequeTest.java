@@ -50,7 +50,7 @@ public class MaxArrayDequeTest {
     private static class DoubleComparator implements Comparator<Double>{
         @Override
         // we should have same name and signature when overriding
-        // so, you can't use "public double compare(Double d1, Double d2)"
+        // so, we can't use "public double compare(Double d1, Double d2)"
         public int compare(Double d1, Double d2){
             return (int)(d1 - d2);
         }
