@@ -156,21 +156,22 @@ public class LinkedListDequeTest {
         }
     }
 
-//    @Test
-//    /* test enhanced for with Iterator */
-//    // so, we can't use "enhanced for"
-//    public void ForIteratorTest() {
-//        LinkedListDeque<Integer> lld = new LinkedListDeque<Integer>();
-//        for (int i = 0; i < 10000; i++) {
-//            lld.addLast(i);
-//        }
-//
-//        int expected = 0;
-//        for (int i : lld) {
-//            assertEquals("Should have the same value", expected, i, 0.0);
-//            expected += 1;
-//        }
-//    }
+    @Test
+    /* test enhanced for with Iterator */
+    // You should not have your Deque interface implement Iterable<T>
+    // But you should have your ArrayDeque implement Iterable<T>
+    public void ForIteratorTest() {
+        LinkedListDeque<Integer> lld = new LinkedListDeque<Integer>();
+        for (int i = 0; i < 10000; i++) {
+            lld.addLast(i);
+        }
+
+        int expected = 0;
+        for (int i : lld) {
+            assertEquals("Should have the same value", expected, i, 0.0);
+            expected += 1;
+        }
+    }
 
     @Test
     public void addThenEqualTest() {
