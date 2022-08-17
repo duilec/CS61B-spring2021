@@ -135,12 +135,14 @@ end time: *2022.08.xx*
 - package
   - When **creating a package**, we specify that code is part of a package by specifying the package name at the top of the file using the `package` keyword.
   - Typically, package names are the internet address of the entity writing the code, **but backwards**. For example, the JUnit library is hosted at `junit.org`, so the package is called `org.junit`.
-- proj1 checkpoint
+  
+- `LinkedListDeque` and `ArrayDeque`(proj1 checkpoint)
+  
   - before doing proj1 checkpoint
     **Strongly recommend**: See the [project 1 demo slides](https://docs.google.com/presentation/d/1XBJOht0xWz1tEvLuvOL4lOIaY0NSfArXAvqgkrx0zpc/edit#slide=id.g1094ff4355_0_450) for more details.
     
-  - if you need more token to test in gradescope, you could create new account
-
+- if you need more token to test in gradescope, you could create new account
+  
   - note:
     
     - `mod %`
@@ -150,11 +152,18 @@ end time: *2022.08.xx*
     - add first
        when adding first from `0` to `3`, then, the list is `3->2->1->0`, the `3` is first
     
-  - tips about `add` and `remove`
+- tips about `add` and `remove`
+  
+  - if `resize()` called by `addFirst/Last`, copy to all old items in **middle part** (from "size/2" to "size/2 + size - 1"). Otherwise, `resize()` called by `removeFirst/Last`, copy to all old items **from index of first**
+  - keeping circular deque, **the index of first after `nextFirst`** and **the index of last before `nextLast`**
+  
+- `MaxArrayDeque`
 
-    - if `resize()` called by `addFirst/Last`, copy to all old items in **middle part** (from "size/2" to "size/2 + size - 1"). Otherwise, `resize()` called by `removeFirst/Last`, copy to all old items **from index of first**
-
-    - keeping circular deque, **the index of first after `nextFirst`** and **the index of last before `nextLast`**
+  - You’ll likely be creating multiple `Comparator<T>` classes to test your code(i.e. we need build different comparator to test in `MaxArrayDeque`)
+  - note
+    - we use method of comparator to compare
+    - we should have same name and signature when overriding.
+      so, we can't use `public double compare(Double d1, Double d2)`but only can use `public int compare(Double d1, Double d2)`
 
 ## homework
 
