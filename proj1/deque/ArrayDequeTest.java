@@ -181,20 +181,22 @@ public class ArrayDequeTest {
         }
     }
 
-    @Test
-    /* test enhanced for with Iterator */
-    public void ForIteratorTest() {
-        ArrayDeque<Integer> ad1 = new ArrayDeque<Integer>();
-        for (int i = 0; i < 10000; i++) {
-            ad1.addLast(i);
-        }
-
-        int expected = 0;
-        for (int i : ad1) {
-            assertEquals("Should have the same value", expected, i, 0.0);
-            expected += 1;
-        }
-    }
+//    @Test
+//    /* test enhanced for with Iterator */
+//    // You should not have your Deque interface implement Iterable
+//    // so, we can't use "enhanced for"
+//    public void ForIteratorTest() {
+//        ArrayDeque<Integer> ad1 = new ArrayDeque<Integer>();
+//        for (int i = 0; i < 10000; i++) {
+//            ad1.addLast(i);
+//        }
+//
+//        int expected = 0;
+//        for (int i : ad1) {
+//            assertEquals("Should have the same value", expected, i, 0.0);
+//            expected += 1;
+//        }
+//    }
 
     @Test
     public void addThenEqualTest() {
