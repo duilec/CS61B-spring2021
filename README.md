@@ -33,11 +33,11 @@ This is my solution about homework, lab and project in CS61B spring2021
 
 time: *2022.08.08*
 
-- gradescope token in CS61B spring2022: `743W56` but not using
+- gradescope token 
 
-- gradescope token in CS61B spring2021: `MB7ZPY`
-
-  **FROM** [CS61B gradescope for students that audit the course](https://www.reddit.com/r/berkeley/comments/pihntt/cs61b_gradescope_for_students_that_audit_the/)
+  - CS61B spring2022: `743W56` **but not using**
+  - CS61B spring2021: `MB7ZPY` or `BP25V6` **FROM** [CS61B gradescope for students that audit the course](https://www.reddit.com/r/berkeley/comments/pihntt/cs61b_gradescope_for_students_that_audit_the/)
+  - CS61B summer(spring)2018:`MNXYKX`
 
 - you should add **your repository(origin)** and **skeleton** as remote repositories.
 
