@@ -188,21 +188,30 @@ public class LinkedListDeque<T> implements Deque<T>, Iterable<T>{
     //Returns whether or nor the parameter o is equal to the Deque.
     // o is considered equal if it is a Deque and if it contains the same contents
     // (as goverened by the generic T’s equals method) in the same order.
-    // note: use "equals" instead of "==", when comparing of different type(T)
+    // note: use "equals" instead of "==", when comparing of content from object
+    @Override
     public boolean equals(Object o){
-        if (o instanceof Deque){
-            if (((Deque)o).size() != this.size()){
-                return false;
-            }
-            for(int i = 0; i < ((Deque)o).size(); i += 1){
-                T itemFromO =  (T)((Deque)o).get(i);
-                T itemFromThis = this.get(i);
-                if (!itemFromO.equals(itemFromThis)){
-                    return false;
-                }
-            }
+        if (this == o) {
             return true;
         }
-        return false;
+        if (o == null) {
+            return false;
+        }
+        if (!(o instanceof Deque)){
+            return false;
+        }
+
+        Deque<T> obj = (Deque<T>)o;
+        if (obj.size() != this.size()){
+            return false;
+        }
+        for(int i = 0; i < obj.size(); i += 1){
+            T itemFromObj =  obj.get(i);
+            T itemFromThis = this.get(i);
+            if (!itemFromObj.equals(itemFromThis)){
+                return false;
+            }
+        }
+        return true;
     }
 }
