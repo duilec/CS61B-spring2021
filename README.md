@@ -113,6 +113,8 @@ For more on this, complete the project 1 extra credit assignment.
 
 ## projects
 
+**I don't care about the style in CS61B**
+
 ### proj0
 
 start time: *2022.08.09*
@@ -135,8 +137,6 @@ end time: *2022.08.09*
 
 start time: *2022.08.13*
 end time: *2022.08.19*
-
-**I don't care about the style in CS61A**
 
 I download `music.mid` FROM [bitmidi](https://bitmidi.com/)
 
