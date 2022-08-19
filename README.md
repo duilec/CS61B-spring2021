@@ -33,6 +33,8 @@ This is my solution about homework, lab and project in CS61B spring2021
 
 time: *2022.08.08*
 
+- gradescope token in CS61B spring2022: `743W56` but not using
+
 - gradescope token in CS61B spring2021: `MB7ZPY`
 
   **FROM** [CS61B gradescope for students that audit the course](https://www.reddit.com/r/berkeley/comments/pihntt/cs61b_gradescope_for_students_that_audit_the/)
@@ -114,7 +116,11 @@ For more on this, complete the project 1 extra credit assignment.
 
 ### lab4
 
-I directly `copy` entire `skeleton`, so I can't do lab4A and lab4B, but it is no very important,  I learned some knowledge of git in [The Missing Semester of Your CS Education](https://missing.csail.mit.edu/)
+I directly `git copy` entire `skeleton`, so I can't do lab4A and lab4B. I learned some knowledge of git in [The Missing Semester of Your CS Education](https://missing.csail.mit.edu/) and I refer it to you.
+
+- but, you can learn how to use `git checkout` to **travel old version** FROM [Sarah’s Git Guide](https://sp19.datastructur.es/materials/guides/using-git). 
+  NOTE: **don't directly copy and paste old `panorama`**, you must `git checkout` with **`panorama and path`**. otherwise, you will meet `detached head`(it is a usual error, but can be fixed FROM [Git WTFS](https://sp19.datastructur.es/materials/guides/git-wtfs) )
+- If you worried about error, you can create a new repository in your github.
 
 Debugging
 
@@ -178,7 +184,7 @@ I download `music.mid` FROM [bitmidi](https://bitmidi.com/)
   
 - `iterator()` and `equals()`
 
-  - use `equals` instead of `==` when comparing of different type(`T`)
+  - use `equals` instead of `==` when comparing of two objects
   - **a class can implement one or more interfaces**.
 
 - `MaxArrayDeque`
