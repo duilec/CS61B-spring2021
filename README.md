@@ -18,7 +18,7 @@ This is my solution about homework, lab and project in CS61B spring2021
   - [x] lab1
   - [x] lab2
   - [x] lab3
-  - [ ] lab4
+  - [x] lab4
   - [ ] ...
 - project
   - [x] proj0
@@ -107,9 +107,22 @@ time: *2022.08.13*
   - log
     Often it is useful to “log” rather than print out the function calls made by randomized tests.
 For more on this, complete the project 1 extra credit assignment.
+  
 - use **randomized** tests
   Use Fixed Data Instead of Randomized Data Avoid randomized data as it can lead to toggling tests which can be hard to debug and omit error messages that make tracing the error back to the code harder. They will create highly reproducible tests, which are **easy to debug and create error messages** that can be easily traced back to the relevant line of code. 
   See [this thread](https://news.ycombinator.com/item?id=24349522) for a debate on this issue.
+
+### lab4
+
+I directly `copy` entire `skeleton`, so I can't do lab4A and lab4B, but it is no very important,  I learned some knowledge of git in [The Missing Semester of Your CS Education](https://missing.csail.mit.edu/)
+
+Debugging
+
+- `Integer`is object in java
+
+- `==` differ `.equals()` in java
+  - `==` compare bits, either `data of basic type` or `address of object`
+  - `.equals()` compare `content of object`
 
 ## projects
 
