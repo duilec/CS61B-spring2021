@@ -12,7 +12,8 @@ public class GuitarHeroLite {
     public static final String keyboard = "q2we4r5ty7u8i9op-[=zxdcfvgbnjmk,.;/' ";
 
     public static void main(String[] args) {
-        // make sure you working wit main()
+        // make sure you working in main()
+        // when writing code about String, System and so on in java.lang
         GuitarString[] strings = new GuitarString[keyboard.length()];
 
         // create 37 guitar strings, from "q" to " "
