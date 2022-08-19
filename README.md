@@ -18,12 +18,14 @@ This is my solution about homework, lab and project in CS61B spring2021
   - [x] lab1
   - [x] lab2
   - [x] lab3
+  - [ ] lab4
   - [ ] ...
 - project
   - [x] proj0
-  - [ ] proj1
+  - [x] proj1
+  - [ ] proj1EC
   - [ ] proj2
-  - [ ] ...
+  - [ ] proj3
 
 ## labs
 
@@ -116,6 +118,8 @@ For more on this, complete the project 1 extra credit assignment.
 start time: *2022.08.09*
 end time: *2022.08.09*
 
+
+
 - keeping patient when reading English text
 
 - a normal mistake lead to **infinite loop**:
@@ -130,7 +134,11 @@ end time: *2022.08.09*
 ### proj1
 
 start time: *2022.08.13*
-end time: *2022.08.xx*
+end time: *2022.08.19*
+
+**I don't care about the style in CS61A**
+
+I download `music.mid` FROM [bitmidi](https://bitmidi.com/)
 
 - package
   - When **creating a package**, we specify that code is part of a package by specifying the package name at the top of the file using the `package` keyword.
@@ -170,6 +178,13 @@ end time: *2022.08.xx*
     - we use method of comparator to compare
     - we should have same name and signature when overriding.
       so, we can't use `public double compare(Double d1, Double d2)`but we can use `public int compare(Double d1, Double d2)`
+  
+- `GuitarString` and `GuitarHeroLife`
+
+  - `sample()` not affect running of `tic()`
+  - make sure you working in `main()` when writing code about `String`, `System` and so on in `java.lang`
+  - I add `beatles-hey_jude.mid` and `beatles-yesterday.mid` FROM [bitmidi](https://bitmidi.com/)
+    - but not great when listening, we need better Player
 
 ## homework
 
