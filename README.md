@@ -120,8 +120,6 @@ For more on this, complete the project 1 extra credit assignment.
 start time: *2022.08.09*
 end time: *2022.08.09*
 
-
-
 - keeping patient when reading English text
 
 - a normal mistake lead to **infinite loop**:
