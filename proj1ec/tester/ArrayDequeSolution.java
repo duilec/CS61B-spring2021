@@ -31,4 +31,12 @@ public class ArrayDequeSolution<Item> extends LinkedList<Item> {
             return null;
         }
     }
+
+    public void addFirst(Item item){
+        super.addFirst(item);
+    }
+
+    public void addLast(Item item){
+        super.addLast(item);
+    }
 }
