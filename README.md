@@ -203,6 +203,10 @@ I download `music.mid` FROM [bitmidi](https://bitmidi.com/)
   - I add `beatles-hey_jude.mid` and `beatles-yesterday.mid` FROM [bitmidi](https://bitmidi.com/)
     - but not great when listening, we need better Player
 
+### proj1ec
+
+- you can use a message of `String` to contain information
+
 ## homework
 
 ### hw0
