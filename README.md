@@ -130,6 +130,10 @@ Debugging
   - `==` compare bits, either `data of basic type` or `address of object`
   - `.equals()` compare `content of object`
 
+### lab5
+
+you could skip it, because you know you do proj1 by yourself and you not have TAs.
+
 ## projects
 
 **I don't care about the style in CS61B**
