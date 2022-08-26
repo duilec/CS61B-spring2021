@@ -19,11 +19,13 @@ This is my solution about homework, lab and project in CS61B spring2021
   - [x] lab2
   - [x] lab3
   - [x] lab4
+  - [ ] lab5 (I skip it)
+  - [x] lab6
   - [ ] ...
 - project
   - [x] proj0
   - [x] proj1
-  - [ ] proj1EC
+  - [x] proj1EC
   - [ ] proj2
   - [ ] proj3
 
@@ -133,6 +135,19 @@ Debugging
 ### lab5
 
 you could skip it, because you know you do proj1 by yourself and you not have TAs.
+
+### lab6
+
+NOTE: **read guide of lab one by one!**
+
+`writeStory()`
+
+- `writeContents()` different with `writeObject()`
+
+[serialization](https://en.wikipedia.org/wiki/Serialization)
+
+- To enable this feature(serialization) for a given class in Java, this simply involves **implementing the `java.io.Serializable` interface**.
+  **eg.** `public class Dog implements Serializable{...}`
 
 ## projects
 
