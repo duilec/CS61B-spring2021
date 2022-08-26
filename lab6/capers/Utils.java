@@ -83,7 +83,7 @@ class Utils {
             in.close();
             return result;
         } catch (IOException | ClassCastException
-                | ClassNotFoundException excp) {
+                 | ClassNotFoundException excp) {
             throw new IllegalArgumentException(excp.getMessage());
         }
     }
