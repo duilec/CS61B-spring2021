@@ -65,9 +65,6 @@ public class Dog implements Serializable{ // TODO
      */
     public void saveDog() {
         // TODO (hint: don't forget dog names are unique)
-        if (!DOG_FOLDER.exists()){
-            DOG_FOLDER.mkdir();
-        }
         File DOG_FILE = join(DOG_FOLDER, name);
         // class Dog "implements Serializable" in class Dog
         writeObject(DOG_FILE, this);

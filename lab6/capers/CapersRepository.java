@@ -3,7 +3,9 @@ package capers;
 import java.io.File;
 import java.io.IOException;
 
-import static capers.Utils.*;
+import static capers.Dog.DOG_FOLDER;
+import static capers.Utils.readContentsAsString;
+import static capers.Utils.writeContents;
 
 /** A repository for Capers 
  * @author Huang Jinhong
@@ -23,6 +25,7 @@ public class CapersRepository {
     /** Main metadata folder. */
     static final File CAPERS_FOLDER = Utils.join(CWD,".capers");
     // TODO Hint: look at the `join` function in Utils
+    static final File STORY_FILE = Utils.join(CAPERS_FOLDER, "story");
 
     /**
      * Does required filesystem operations to allow for persistence.
@@ -38,6 +41,16 @@ public class CapersRepository {
         if (!CAPERS_FOLDER.exists()){
             CAPERS_FOLDER.mkdir();
         }
+        if (!DOG_FOLDER.exists()){
+            DOG_FOLDER.mkdir();
+        }
+        if (!STORY_FILE.exists()){
+            try {
+                STORY_FILE.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     /**
@@ -47,14 +60,6 @@ public class CapersRepository {
      */
     public static void writeStory(String text) {
         // TODO
-        File STORY_FILE = Utils.join(CAPERS_FOLDER, "story");
-        if (!STORY_FILE.exists()){
-            try {
-                STORY_FILE.createNewFile();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
         String currentText = readContentsAsString(STORY_FILE);
         if (currentText.equals("")) {
             currentText = text;
