@@ -118,6 +118,8 @@ For more on this, complete the project 1 extra credit assignment.
 
 ### lab4
 
+time: *2022.08.19*
+
 I directly `git copy` entire `skeleton`, so I can't do lab4A and lab4B. I learned some knowledge of git in [The Missing Semester of Your CS Education](https://missing.csail.mit.edu/) and I refer it to you.
 
 - but, you can learn how to use `git checkout` to **travel old version** FROM [Sarah’s Git Guide](https://sp19.datastructur.es/materials/guides/using-git). 
@@ -137,6 +139,8 @@ Debugging
 you could skip it, because you know you do proj1 by yourself and you not have TAs.
 
 ### lab6
+
+time: *2022.08.26*
 
 NOTE: **read guide of lab one by one!**
 
