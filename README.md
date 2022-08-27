@@ -134,6 +134,21 @@ Debugging
   - `==` compare bits, either `data of basic type` or `address of object`
   - `.equals()` compare `content of object`
 
+Setting environment variable in wsl2 (*2022.8.27*)
+
+```bash
+#open .bashrc file (in bash)
+vim ~/.bashrc
+  
+#setting environment variable in the end of file
+export REPO_DIR=/mnt/c/Users/.../sp-s21(your repo)
+  
+#let setting useful (in bash)
+source ~/.bashrc
+```
+
+[maybe useful link to setting environment variable in window](https://fa20.datastructur.es/materials/lab/lab2setup/lab2setupWindows.html)
+
 ### lab5
 
 you could skip it, because you know you do proj1 by yourself and you not have TAs.
