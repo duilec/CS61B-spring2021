@@ -1,16 +1,12 @@
 package bstmap;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 // note: compareTo()(method of class of Comparable<K>) don't need extra class to Override compareTo()
 // but, compare()(method of class of Comparator<K>) need extra to Override compare()
 public class BSTMap<K extends Comparable<K>, V> implements Map61B<K,V> {
     private Node root;
     private HashSet<K> keySet = new HashSet<K>();
-    private ArrayList<Node> increatedKeyList = new ArrayList<Node>();
 
     private class Node {
         private K key;           // sorted by key
@@ -76,13 +72,8 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K,V> {
     /* Associates the specified value with the specified key in this map. */
     public void put(K key, V value) {
         if (key == null) throw new IllegalArgumentException("calls put() with a null key");
-//        if (value == null) {
-//            delete(key);
-//            return;
-//        }
         root = put(root, key, value);
         keySet.add(key);
-//        assert check();
     }
 
     private Node put(Node x, K key, V value) {
@@ -105,20 +96,88 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K,V> {
     /* Removes the mapping for the specified key from this map if present.
      * Not required for Lab 7. If you don't implement this, throw an
      * UnsupportedOperationException. */
+//    public V remove(K key){
+//        throw new UnsupportedOperationException("Not required for Lab 7");
+//    }
     public V remove(K key){
-        throw new UnsupportedOperationException("Not required for Lab 7");
+        if (key == null) throw new IllegalArgumentException("calls remove() with a null key");
+        V removeValue = get(key);
+        root = remove(root, key);
+        keySet.remove(key);
+        return removeValue;
+    }
+
+    private Node remove(Node x, K key){
+        if (x == null) return null;
+        int cmp = key.compareTo(x.key);
+        // recursive to x.left or x.right to remove and build new x.left or x.right
+        if      (cmp < 0) x.left = remove(x.left,  key);
+        else if (cmp > 0) x.right = remove(x.right, key);
+        else {
+            if (x.left == null)   return x.right;
+            if (x.right == null)  return x.left;
+            // find the smallest Node in right and remove it
+            // then, using the smallest Node to replace x and link x.left
+            Node temp = x;
+            x = minNode(temp.right);
+            x.right = removeMin(temp.right);
+            x.left = temp.left;
+        }
+        x.size = 1 + size(x.left) + size(x.right);
+        return x;
+    }
+
+    private Node minNode(Node x) {
+        if (x.left == null) return x;
+        else                return minNode(x.left);
+    }
+
+    // find the smallest Node, then, using right of the smallest Node to replace itself
+    private Node removeMin(Node x){
+        if (x.left == null) return x.right;
+        x.left = removeMin(x.left);
+        x.size = 1 + size(x.left) + size(x.right);
+        return x;
     }
 
     /* Removes the entry for the specified key only if it is currently mapped to
      * the specified value. Not required for Lab 7. If you don't implement this,
      * throw an UnsupportedOperationException.*/
     public V remove(K key, V value){
-        throw new UnsupportedOperationException("Not required for Lab 7");
+        if (key == null) throw new IllegalArgumentException("calls remove() with a null key");
+        root = remove(root, key);
+        keySet.remove(key);
+        return value;
     }
 
     @Override
     public Iterator<K> iterator() {
-        throw new UnsupportedOperationException("Not required for Lab 7");
+        return new iteratorOfK(root);
+    }
+
+    private class iteratorOfK implements Iterator<K>{
+        private Node node;
+
+        public iteratorOfK(Node x){
+            this.node = x;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return node != null;
+        }
+
+        @Override
+        public K next() {
+            if(!hasNext()){
+                throw new NoSuchElementException();
+            } else {
+                K minKey = minNode(node).key;
+                // we need use remove() in BSTMap
+                node = BSTMap.this.remove(node, minKey);
+                return minKey;
+            }
+        }
     }
 
     public void printInOrder(){

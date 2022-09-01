@@ -1,5 +1,6 @@
 package bstmap;
 
+import java.util.Random;
 import java.util.Set;
 import java.util.HashSet;
 import static org.junit.Assert.*;
@@ -113,4 +114,18 @@ public class TestBSTMapExtra {
         assertEquals(null, noChild.get('Z'));
     }
 
+    @Test
+    public void iteratorTest(){
+        BSTMap<Integer, Integer> b = new BSTMap<Integer, Integer>();
+        for (int i = 0; i < 455; i++) {
+            Random rnd = new Random();
+            int num = rnd.nextInt(1000);
+            b.put(num, i);
+        }
+        int i = 0;
+        for (Integer key : b){
+            System.out.println("No." + i + " key: " + key);
+            i += 1;
+        }
+    }
 }
