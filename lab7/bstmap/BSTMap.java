@@ -96,9 +96,6 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K,V> {
     /* Removes the mapping for the specified key from this map if present.
      * Not required for Lab 7. If you don't implement this, throw an
      * UnsupportedOperationException. */
-//    public V remove(K key){
-//        throw new UnsupportedOperationException("Not required for Lab 7");
-//    }
     public V remove(K key){
         if (key == null) throw new IllegalArgumentException("calls remove() with a null key");
         V removeValue = get(key);

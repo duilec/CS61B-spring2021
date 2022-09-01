@@ -1,0 +1,60 @@
+/* InOrder */
+This program inserts lexicographically increasing Strings into Maps as <String, Integer> pairs.
+
+Enter # strings to insert into the maps: 1000
+class bstmap.ULLMap: 0.02 sec
+class bstmap.BSTMap: 0.02 sec
+Java's Built-in TreeMap: 0.00 sec
+Java's Built-in HashMap: 0.00 sec
+Would you like to try more timed-tests? (y/n): y
+
+Enter # strings to insert into the maps: 10000
+class bstmap.ULLMap: 0.92 sec
+class bstmap.BSTMap: 1.04 sec
+Java's Built-in TreeMap: 0.01 sec
+Java's Built-in HashMap: 0.01 sec
+Would you like to try more timed-tests? (y/n): y
+
+Enter # strings to insert into the maps: 100000
+--Stack Overflow -- couldn't add 100000 strings.
+--Stack Overflow -- couldn't add 100000 strings.
+Java's Built-in TreeMap: 0.08 sec
+Java's Built-in HashMap: 0.04 sec
+Would you like to try more timed-tests? (y/n): n
+
+Process finished with exit code 0
+
+/* Random */
+This program inserts random Strings of length L into different types of maps as <String, Integer> pairs.
+Please enter desired length of each string: 10
+
+Enter # strings to insert into the maps: 1000
+class bstmap.ULLMap: 0.01 sec
+class bstmap.BSTMap: 0.00 sec
+Java's Built-in TreeMap: 0.00 sec
+Java's Built-in HashMap: 0.00 sec
+Would you like to try more timed-tests? (y/n)y
+
+Enter # strings to insert into the maps: 10000
+class bstmap.ULLMap: 0.38 sec
+class bstmap.BSTMap: 0.01 sec
+Java's Built-in TreeMap: 0.01 sec
+Java's Built-in HashMap: 0.00 sec
+Would you like to try more timed-tests? (y/n)y
+
+Enter # strings to insert into the maps: 100000
+--Stack Overflow -- couldn't add 100000 strings of length 10.
+class bstmap.BSTMap: 0.10 sec
+Java's Built-in TreeMap: 0.10 sec
+Java's Built-in HashMap: 0.03 sec
+Would you like to try more timed-tests? (y/n)y
+
+Enter # strings to insert into the maps: 1000000
+--Stack Overflow -- couldn't add 1000000 strings of length 10.
+class bstmap.BSTMap: 1.74 sec
+Java's Built-in TreeMap: 0.94 sec
+Java's Built-in HashMap: 0.44 sec
+Would you like to try more timed-tests? (y/n)n
+
+Process finished with exit code 0
+
