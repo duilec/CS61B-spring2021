@@ -21,6 +21,7 @@ This is my solution about homework, lab and project in CS61B spring2021
   - [x] lab4
   - [ ] lab5 (I skip it)
   - [x] lab6
+  - [x] lab7
   - [ ] ...
 - project
   - [x] proj0
