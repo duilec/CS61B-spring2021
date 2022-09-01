@@ -168,6 +168,14 @@ NOTE: **read guide of lab one by one!**
 - To enable this feature(serialization) for a given class in Java, this simply involves **implementing the `java.io.Serializable` interface**.
   **eg.** `public class Dog implements Serializable{...}`
 
+### lab7
+
+time:  *2022.09.01*
+
+if you **stuck** you can refer it: BST code from [our optional textbook](https://algs4.cs.princeton.edu/32bst/BST.java.html).
+
+NOTE: you can travel a tree without using `return` but using `=`  to assign in some part
+
 ## projects
 
 **I don't care about the style in CS61B**
@@ -210,7 +218,7 @@ I download `music.mid` FROM [bitmidi](https://bitmidi.com/)
     
     - `mod %`
     
-      `-1 % 32 == -1` in java, `-1 % 32 == 31` in python3
+      `-1 % 32 == -1` , `Math.floorMod(-1, 32) == 31`in java, `-1 % 32 == 31` in python3
     
     - add first
        when adding first from `0` to `3`, then, the list is `3->2->1->0`, the `3` is first
