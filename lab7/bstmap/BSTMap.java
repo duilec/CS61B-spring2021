@@ -1,5 +1,6 @@
 package bstmap;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -9,6 +10,7 @@ import java.util.Set;
 public class BSTMap<K extends Comparable<K>, V> implements Map61B<K,V> {
     private Node root;
     private HashSet<K> keySet = new HashSet<K>();
+    private ArrayList<Node> increatedKeyList = new ArrayList<Node>();
 
     private class Node {
         private K key;           // sorted by key
@@ -88,7 +90,7 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K,V> {
         int cmp = key.compareTo(x.key);
         if      (cmp < 0) x.left  = put(x.left,  key, value);
         else if (cmp > 0) x.right = put(x.right, key, value);
-        else              x.value   = value;
+        else              x.value = value;
         // also use recursion to compute current size of x
         x.size = 1 + size(x.left) + size(x.right);
         return x;
@@ -117,5 +119,16 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K,V> {
     @Override
     public Iterator<K> iterator() {
         throw new UnsupportedOperationException("Not required for Lab 7");
+    }
+
+    public void printInOrder(){
+        printInOrderByMidTravel(root);
+    }
+
+    private void printInOrderByMidTravel(Node x){
+        if (x == null) return;
+        printInOrderByMidTravel(x.left);
+        System.out.println("key: " + x.key + " value: " + x.value);
+        printInOrderByMidTravel(x.right);
     }
 }
