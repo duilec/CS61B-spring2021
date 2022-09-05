@@ -109,7 +109,6 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
     @Override
     public void clear() {
         buckets = createTable(tableSize);
-        // buckets = null;
         nodeNum = 0;
         // tableSize: You are not required to resize down
         // loadFactor: keep loadFactor in my opinion
@@ -118,7 +117,7 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
 
     @Override
     public boolean containsKey(K key) {
-        int index = getIndex(key.hashCode());
+        int index = getTableIndex(key.hashCode());
         if (buckets[index] != null){
             for (Node oldNode : buckets[index]) {
                 if (oldNode.key.equals(key)) {
@@ -131,7 +130,7 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
 
     @Override
     public V get(K key) {
-        int index = getIndex(key.hashCode());
+        int index = getTableIndex(key.hashCode());
         if (buckets[index] != null){
             for (Node oldNode : buckets[index]) {
                 if (oldNode.key.equals(key)) {
@@ -150,7 +149,7 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
     @Override
     public void put(K key, V value) {
         Node newNode = new Node(key, value);
-        int index = getIndex(key.hashCode());
+        int index = getTableIndex(key.hashCode());
         // the buckets[index] NOT exist, we create bucket to insert
         if (buckets[index] == null){
             buckets[index] = createBucket();
@@ -171,7 +170,7 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
         }
     }
 
-    private int getIndex(int hashCode) {
+    private int getTableIndex(int hashCode) {
         return Math.floorMod(hashCode, tableSize);
     }
 
@@ -199,20 +198,33 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
 
     @Override
     public V remove(K key) {
-        throw new UnsupportedOperationException();
+        if (containsKey(key)){
+            keySet.remove(key);
+            nodeNum -= 1;
+            int index = getTableIndex(key.hashCode());
+            for (Node node : buckets[index]){
+                if (node.key.equals(key)){
+                    V value = node.value;
+                    buckets[index].remove(node);
+                    return value;
+                }
+            }
+        }
+        return null;
     }
 
     @Override
     public V remove(K key, V value) {
-        throw new UnsupportedOperationException();
+        return remove(key);
     }
 
     @Override
     public Iterator<K> iterator() {
-        return new IteratorKey();
+        return new IteratorWithKey();
     }
 
-    public class IteratorKey implements Iterator<K> {
+    private class IteratorWithKey implements Iterator<K> {
+        // you can just create a LinkedList to iterate
         LinkedList<K> keysList = createKeyList();
         int keyNum = 0;
 
