@@ -42,23 +42,6 @@ public class TestMyHashMap {
         }
     }
 
-    @Test
-    public void iterateTest() {
-        MyHashMap<String, Integer> b = new MyHashMap<>();
-        for (int i = 0; i < 455; i++) {
-            b.put("hi" + i, 1);
-            //make sure put is working via containsKey and get
-            assertTrue(null != b.get("hi" + i)
-                    && b.containsKey("hi" + i));
-        }
-        // you don't create an iterator of b just using b(obj of MyHashMap)
-        for (String key : b){
-            System.out.println(key);
-        }
-    }
-
-
-
     // assumes put works
     @Test
     public void sanityContainsKeyTest() {
@@ -175,5 +158,21 @@ public class TestMyHashMap {
         studentIDs.put("evil alan", 345);
         assertEquals(345, studentIDs.get("evil alan").intValue());
         assertEquals(studentIDs.get("evil alan"), studentIDs.get("alan"));
+    }
+
+    // this is my test about iterator, but you will get an NoSuchElementException
+    @Test
+    public void iterateTest() {
+        MyHashMap<String, Integer> b = new MyHashMap<>();
+        for (int i = 0; i < 455; i++) {
+            b.put("hi" + i, 1);
+            //make sure put is working via containsKey and get
+            assertTrue(null != b.get("hi" + i)
+                    && b.containsKey("hi" + i));
+        }
+        // you don't create an iterator of b just using b(obj of MyHashMap)
+        for (String key : b){
+            System.out.println(key);
+        }
     }
 }
