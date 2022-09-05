@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -40,6 +41,23 @@ public class TestMyHashMap {
             assertTrue(null == b.get("hi" + i) && !b.containsKey("hi" + i));
         }
     }
+
+    @Test
+    public void iterateTest() {
+        MyHashMap<String, Integer> b = new MyHashMap<>();
+        for (int i = 0; i < 455; i++) {
+            b.put("hi" + i, 1);
+            //make sure put is working via containsKey and get
+            assertTrue(null != b.get("hi" + i)
+                    && b.containsKey("hi" + i));
+        }
+        // you don't create an iterator of b just using b(obj of MyHashMap)
+        for (String key : b){
+            System.out.println(key);
+        }
+    }
+
+
 
     // assumes put works
     @Test
