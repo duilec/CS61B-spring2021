@@ -22,6 +22,7 @@ This is my solution about homework, lab and project in CS61B spring2021
   - [ ] lab5 (I skip it)
   - [x] lab6
   - [x] lab7
+  - [x] lab8
   - [ ] ...
 - project
   - [x] proj0
@@ -176,6 +177,34 @@ time:  *2022.09.01*
 if you **stuck** you can refer it: BST code from [our optional textbook](https://algs4.cs.princeton.edu/32bst/BST.java.html).
 
 NOTE: you can travel a tree without using `return` but using `=`  to assign in some part
+
+### lab8
+
+time:  *2022.09.05*
+
+iterator
+
+I choose classic approach of `LinkedList`  to implement to `MyHashMap`
+
+- **you can just create a `LinkedList` to iterate**
+
+  - you also can use some counters to record and getting outputs, but need greater patience and more tricks.
+
+- you don't create an iterator of `b` just using `b`(object of `MyHashMap`)
+
+  - when you iterate `b`, `b` will  **automatically** calls `iterator()` NOT need user manually calls.
+
+  ```java
+  // Error
+  for (String key : b.iterator()){
+      System.out.println(key);
+  }
+  
+  // Right
+  for (String key : b){
+      System.out.println(key);
+  }
+  ```
 
 ## projects
 
