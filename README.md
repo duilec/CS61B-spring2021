@@ -186,6 +186,14 @@ iterator
 
 I choose classic approach of `LinkedList`  to implement to `MyHashMap`
 
+- **factory method**
+  depend on polymorphism and inheritance, 
+  eg. we can use different type of bucket by a factory method `protected Collection<Node> createBucket()`
+
+- `protected`
+
+  // todo
+
 - **you can just create a `LinkedList` to iterate**
 
   - you also can use some counters to record and getting outputs, but need greater patience and more tricks.
