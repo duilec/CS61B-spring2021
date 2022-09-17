@@ -7,6 +7,7 @@ This is my solution about homework, lab and project in CS61B spring2021
 ## course website
 
 - [CS61B spring2021](https://sp21.datastructur.es/)
+- [CS61B spring2018](https://sp18.datastructur.es/)
 
 ## course progress
 
@@ -23,6 +24,7 @@ This is my solution about homework, lab and project in CS61B spring2021
   - [x] lab6
   - [x] lab7
   - [x] lab8
+  - [x] lab11 (graph exercise in 2018spring)
   - [ ] ...
 - project
   - [x] proj0
@@ -30,6 +32,10 @@ This is my solution about homework, lab and project in CS61B spring2021
   - [x] proj1EC
   - [ ] proj2
   - [ ] proj3
+
+## helper link
+
+- [cs61b staff](https://github.com/Berkeley-CS61B)
 
 ## labs
 
@@ -213,6 +219,45 @@ I choose classic approach of `LinkedList`  to implement to `MyHashMap`
       System.out.println(key);
   }
   ```
+
+### lab11
+
+this is some exercises about graph
+
+- DFS
+
+  - solution recursion + *for* loop 
+  - you can using **recursion** (NOT tail recursion)to instead of **stack**(FIFO), because both equal.
+  - DFS like *preorder* travel
+
+- BFS
+
+  - solution queue + *for* loop 
+  - you can use any type of queue, I choose `ArrayDeque`
+  - in queue
+    - `add()` equal `addLast()`
+    - `remove()` equal `removeFirst()`
+  - BFS like level *levelOrder* travel
+
+- detect Cycle
+
+  - only find a cycle with 4 nodes in my solution
+
+  - about **check**
+
+    ```java
+    // you should use "else if" to check w to find cycle
+    // you couldn't use "if" to check w to find cycle.
+    // because you can't mark w, then, immediately check it.
+    // otherwise, when tracebacking to second node you will immediately return.
+    // you only do one thing(mark or check) when visiting a w.
+    ```
+
+- A*
+
+  - Dijkstra's like BFS, but consider **distance from source to target**, 
+    each time remove vertex of minimum distance in fringe
+  - A* also like BFS (Dijkstra's) , but consider **sum of distance from source to vertex and distance from vertex to target**, each time remove vertex of minimum sum of distance in fringe
 
 ## projects
 
