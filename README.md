@@ -24,7 +24,7 @@ This is my solution about homework, lab and project in CS61B spring2021
   - [x] lab6
   - [x] lab7
   - [x] lab8
-  - [x] lab11 (graph exercise in 2018spring)
+  - [x] [lab11](https://github.com/duilec/CS61B-spring2018/tree/main/lab11/lab11/graphs) (graph exercises in 18sp)
   - [ ] ...
 - project
   - [x] proj0
