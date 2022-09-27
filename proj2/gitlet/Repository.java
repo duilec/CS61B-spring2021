@@ -65,7 +65,8 @@ public class Repository {
     // if success, setup persistence, else print error msg
     public static void initCommand(String msg) {
         if (GITLET_DIR.exists()) {
-            throw Utils.error("A Gitlet version-control system already exists in the current directory.");
+            System.out.println("A Gitlet version-control system already exists in the current directory.");
+            // throw Utils.error("A Gitlet version-control system already exists in the current directory.");
         } else {
             setupPersistence(msg);
         }
