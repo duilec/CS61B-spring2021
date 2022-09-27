@@ -88,6 +88,18 @@ class Utils {
         return restrictedDelete(new File(file));
     }
 
+    static boolean unrestrictedDelete(File file) {
+        if (!file.isDirectory()) {
+            return file.delete();
+        } else {
+            return false;
+        }
+    }
+
+    static boolean unrestrictedDelete(String file) {
+        return unrestrictedDelete(new File(file));
+    }
+
     /* READING AND WRITING FILE CONTENTS */
 
     /** Return the entire contents of FILE as a byte array.  FILE must
@@ -235,5 +247,22 @@ class Utils {
     static void message(String msg, Object... args) {
         System.out.printf(msg, args);
         System.out.println();
+    }
+
+    /**
+     * Prints out MESSAGE and exits with error code -1.
+     * Note:
+     *     The functionality for erroring/exit codes is different within Gitlet
+     *     so DO NOT use this as a reference.
+     *     Refer to the spec for more information.
+     * @param msg message to print
+     */
+    // All error message end with a period
+    // Note: You should always supply the argument 0 to the System.exit(0)command.
+    public static void exitWithError(String msg, Object... args) {
+        if (msg != null && !msg.equals("")) {
+            message(msg, args);
+        }
+        System.exit(0);
     }
 }

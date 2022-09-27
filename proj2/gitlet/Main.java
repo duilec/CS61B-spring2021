@@ -1,24 +1,194 @@
 package gitlet;
 
+import java.util.regex.*;
+import static gitlet.Utils.*;
+
 /** Driver class for Gitlet, a subset of the Git version-control system.
- *  @author TODO
+ *  @author Huang Jinhong
  */
 public class Main {
+    /**
+     * Usage
+     * Runs one of 13 commands:
+     *
+     * init -- Creates a new Gitlet version-control system
+     *         in the current directory.
+     *
+     * add [filename] -- Adds a copy of the file as it currently exists
+     *                       to the staging area
+     *
+     * commit, checkout...
+     *
+     * ? All persistent data should be stored in a ".capers"
+     * ? directory in the current working directory.
+     *
+     * *YOU SHOULD NOT CREATE THESE MANUALLY,
+     *  YOUR PROGRAM SHOULD CREATE THESE FOLDERS/FILES*
+     *
+     * .gitlet/ -- top level folder for all persistent data in proj2 folder
+     *    - commits/ -- folder containing all of the persistent data for commits
+     *    - blobs/ -- folder containing all of the persistent data for commits
+     *
+     * @param args arguments from the command line
+     */
 
     /** Usage: java gitlet.Main ARGS, where ARGS contains
      *  <COMMAND> <OPERAND1> <OPERAND2> ... 
      */
     public static void main(String[] args) {
-        // TODO: what if args is empty?
+        // All error message end with a period
+            // get period by my planning? or get period automatically by RuntimeException?
+        // If a user doesn’t input any arguments, print the message Please enter a command. and exit.
+        if (args.length == 0) {
+            Utils.exitWithError("Please enter a command.");
+        }
+
         String firstArg = args[0];
         switch(firstArg) {
             case "init":
-                // TODO: handle the `init` command
+                validateOperands("init", args, 1);
+                Repository.initCommand("initial commit");
                 break;
             case "add":
-                // TODO: handle the `add [filename]` command
+                validateInitAndOperands("add", args, 2);
+                Repository.addCommand(args[1]);
                 break;
-            // TODO: FILL THE REST IN
+            case "commit":
+                validateInitAndOperands("commit", args, 2);
+                Repository.commitCommand(args[1]);
+                break;
+            case "rm":
+                validateInitAndOperands("rm", args, 2);
+                Repository.rmCommand(args[1]);
+                break;
+            case "log":
+                validateInitAndOperands("log", args, 1);
+                Repository.logCommand();
+                break;
+            case "global-log":
+                validateInitAndOperands("global-log", args, 1);
+                Repository.globalLogCommand();
+                break;
+            case "find":
+                validateInitAndOperands("global-log", args, 2);
+                Repository.findCommand(args[1]);
+                break;
+            case "status":
+                validateInitAndOperands("status", args, 1);
+                Repository.statusCommand();
+                break;
+            case "checkout":
+                if (args.length == 2 || args.length == 3 || args.length == 4) {
+                    validateInitAndOperands("checkout", args, args.length);
+                } else {
+                    Utils.exitWithError("Incorrect operands.");
+                }
+                Repository.checkoutCommand(args);
+                break;
+            // If a user inputs a command that doesn’t exist,
+            // print the message No command with that name exists. and exit.
+            default:
+                Utils.exitWithError("No command with that name exists.");
+        }
+    }
+
+    /**
+     * If a user inputs a command with the wrong number or format of operands,
+     * print the message Incorrect operands. and exit.
+     *
+     * @param cmd Name of command you are validating
+     * @param args Argument array from command line
+     * @param n Number of expected arguments
+     */
+    public static void validateOperands(String cmd, String[] args, int n) {
+        if (args.length != n) {
+            Utils.exitWithError("Incorrect operands.");
+        }
+        String firstArg = args[0];
+        switch (firstArg) {
+            case "add":
+                matchFileNameWithError(args[1]);
+                break;
+            case "commit":
+                if (args[1] == null) {
+                    throw error("Please enter a commit message.");
+                }
+                matchMessageWithError(args[1]);
+                break;
+            case "rm":
+                matchFileNameWithError(args[1]);
+                break;
+            case "find":
+                matchMessageWithError(args[1]);
+                break;
+            case "checkout":
+                // checkout [branch name]
+                if (args.length == 2) {
+                    matchBranchNameWithError(args[1]);
+                }
+                // checkout -- [file name]
+                if (args.length == 3) {
+                    matchTwoLinesWithError(args[1]);
+                    matchFileNameWithError(args[2]);
+                }
+                // checkout [commit id] -- [file name]
+                if (args.length == 4) {
+                    matchCommitIDWithError(args[1]);
+                    matchTwoLinesWithError(args[2]);
+                    matchFileNameWithError(args[3]);
+                }
+                break;
+        }
+    }
+
+    public static void validateInitAndOperands(String cmd, String[] args, int n) {
+        // validate init
+        if (!Repository.validateDirAndFolder()) {
+            throw Utils.error("Not in an initialized Gitlet directory.");
+        }
+        // validate operands
+        validateOperands(cmd, args, n);
+    }
+
+    // "Incorrect operands." with Regular Expression of matching filename
+    private static void matchFileNameWithError(String fileName) {
+        // filename pattern
+        String fileNamePattern = ".+\\..+";
+        if (!Pattern.matches(fileNamePattern, fileName)) {
+            Utils.exitWithError("Incorrect operands.");
+        }
+    }
+
+    // "Incorrect operands." with Regular Expression of matching message
+    private static void matchMessageWithError(String message) {
+        // message pattern
+        String messagePattern = ".+";
+        if (!Pattern.matches(messagePattern, message)) {
+            Utils.exitWithError("Incorrect operands.");
+        }
+    }
+
+    // "Incorrect operands." with Regular Expression of matching "--"
+    private static void matchTwoLinesWithError(String TwoLines) {
+        // two lines pattern
+        String twoLinesPattern = "--";
+        if (!Pattern.matches(twoLinesPattern, TwoLines)) {
+            Utils.exitWithError("Incorrect operands.");
+        }
+    }
+
+    // "Incorrect operands." with Regular Expression of matching message
+    private static void matchBranchNameWithError(String branchName) {
+        // message pattern equals branch name pattern
+        matchMessageWithError(branchName);
+    }
+
+    // "Incorrect operands." with Regular Expression of matching message
+    private static void matchCommitIDWithError(String message) {
+        // commit id pattern
+        String commitIDPattern = "[\\w\\d]+";
+        if (!Pattern.matches(commitIDPattern, message)) {
+            Utils.exitWithError("Incorrect operands.");
         }
     }
 }
