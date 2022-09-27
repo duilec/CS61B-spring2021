@@ -249,20 +249,21 @@ class Utils {
         System.out.println();
     }
 
-    /**
-     * Prints out MESSAGE and exits with error code -1.
-     * Note:
-     *     The functionality for erroring/exit codes is different within Gitlet
-     *     so DO NOT use this as a reference.
-     *     Refer to the spec for more information.
-     * @param msg message to print
-     */
     // All error message end with a period
     // Note: You should always supply the argument 0 to the System.exit(0)command.
     public static void exitWithError(String msg, Object... args) {
         if (msg != null && !msg.equals("")) {
             message(msg, args);
         }
+        System.exit(0);
+    }
+
+    public static void printError(String msg) {
+        System.out.println(msg);
+    }
+
+    public static void printErrorWithExit(String msg) {
+        printError(msg);
         System.exit(0);
     }
 }

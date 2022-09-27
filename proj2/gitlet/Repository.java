@@ -65,8 +65,7 @@ public class Repository {
     // if success, setup persistence, else print error msg
     public static void initCommand(String msg) {
         if (GITLET_DIR.exists()) {
-            System.out.println("A Gitlet version-control system already exists in the current directory.");
-            // throw Utils.error("A Gitlet version-control system already exists in the current directory.");
+            printError("A Gitlet version-control system already exists in the current directory.");
         } else {
             setupPersistence(msg);
         }
@@ -74,12 +73,11 @@ public class Repository {
 
     // using helperMethod to "add"
     // In gitlet, only one file may be added at a time.
-    // todo: repeats add same(one) file, will not thing to happen??
-    // todo: repeats add same(one) file after committing this file, will not thing to happen??
+    // NOTE: you should make check after testing
     public static void addCommand(String fileName) {
         // if workingFile is empty, print error msg and exit
         if (!hasFileNameInCWD(fileName)) {
-            throw Utils.error("File does not exist.");
+            printError("File does not exist.");
         }
         // if workingFiles equal files of current commit,
         // NOT adding to staging area and remove it from the staging area if it is already there
@@ -88,11 +86,13 @@ public class Repository {
         // because NOT need to add
         // equal ==> totally equal, NOT only name but also content, so, we should use id(sha-1)
         String fileID = getFileID(join(CWD, fileName));
-        for (String copiedFileID : getCurrentCommit().getCopiedFileIDs()) {
-            if (fileID.equals(copiedFileID)) {
-                // todo: delete join() or readObject(join())???
+        for (Commit.Blob blob : getCurrentCommit().getBlobs()) {
+            String ID = blob.getCopiedFileID();
+            if (fileID.equals(blob.getCopiedFileID())) {
                 // 22.9.24: choose join()
+                unrestrictedDelete(join(REMOVED_FOLDER, fileName));
                 unrestrictedDelete(join(STAGING_FOLDER, fileName));
+                return;
             }
         }
         // if workingFiles NOT equal files of current commit
@@ -106,7 +106,7 @@ public class Repository {
 
     public static void commitCommand(String message) {
         if (plainFilenamesIn(STAGING_FOLDER).size() == 0) {
-            throw error("No changes added to the commit.");
+            printError("No changes added to the commit.");
         }
         // make new commit, then save it
         Commit commit = makeCommitWithoutInit(message);
@@ -118,53 +118,52 @@ public class Repository {
     // Unstage the file if it is currently staged for addition.
     public static void rmCommand(String fileName) {
         // get stagingFileIDs
-        List<String> stagingFileNames = plainFilenamesIn(STAGING_FOLDER);
         List<String> stagingFileIDs = new LinkedList<>();
-        for (String stagingFileName : stagingFileNames) {
+        for (String stagingFileName : plainFilenamesIn(STAGING_FOLDER)) {
             String stagingFileID = getFileID(join(STAGING_FOLDER, stagingFileName));
             stagingFileIDs.add(stagingFileID);
         }
-        // get fileID by fileName
-        String fileID = getFileID(join(STAGING_FOLDER, fileName));
-        // Unstage the file if it is currently staged for addition.
-        for (String stagingFileID : stagingFileIDs) {
-            if (fileID.equals(stagingFileID)) {
-                unrestrictedDelete(join(STAGING_FOLDER, fileName));
-                return;
+        // get fileID if stagingFiles exist
+        if (stagingFileIDs.size() != 0) {
+            String fileID = getFileID(join(STAGING_FOLDER, fileName));
+            // Unstage the file if it is currently staged for addition.
+            for (String stagingFileID : stagingFileIDs) {
+                if (fileID.equals(stagingFileID)) {
+                    unrestrictedDelete(join(STAGING_FOLDER, fileName));
+                    return;
+                }
             }
         }
-
         // If the file is tracked in the current commit,
         // stage it for removal and
         // remove the file from the working directory if the user has not already done so
-        // i.e. the user not already delete the file
-        // compared ID or Name? choose ID
+        // i.e. the user have not deleted the file
+        // compared ID or Name? choose Name in 22.9.27
         // get current commit
         Commit currentCommit = getCurrentCommit();
-        for (String commitFileID : currentCommit.getCopiedFileIDs()) {
-            if (fileID.equals(commitFileID)) {
+        for (Commit.Blob blob : currentCommit.getBlobs()) {
+            if (fileName.equals(blob.getCopiedFileName())) {
                 // todo: delete join() or readObject(join())???
                 // 22.9.24: choose join()
                 // save(stage it for removal)
-                File stagingFile = join(STAGING_FOLDER, fileName);
-                saveRemovedFile(fileName, readContentsAsString(stagingFile));
+                saveRemovedFile(fileName, blob.getCopiedFileContent());
                 // delete it in staging
-                unrestrictedDelete(stagingFile);
+                unrestrictedDelete(join(STAGING_FOLDER, fileName));
                 // delete it in working
-                if (hasFileIDInCWD(fileID)) {
+                if (hasFileNameInCWD(fileName)) {
                     unrestrictedDelete(fileName);
                 }
                 return;
             }
         }
         // If the file is neither staged nor tracked by the head commit, print the error message
-        throw Utils.error("No reason to remove the file.");
+        printError("No reason to remove the file.");
     }
 
     // the fileID in CWD?
     private static boolean hasFileIDInCWD(String fileID) {
         for (String workingFileName : plainFilenamesIn(CWD)) {
-            String workingFileID = getFileIDbyName(CWD, workingFileName);
+            String workingFileID = getFileID(join(CWD, workingFileName));
             if (workingFileID.equals(fileID)) {
                 return true;
             }
@@ -217,7 +216,7 @@ public class Repository {
             }
         }
         if (hasCommitWithMessage) {
-            throw error("Found no commit with that message.");
+            printError("Found no commit with that message.");
         }
     }
 
@@ -260,7 +259,7 @@ public class Repository {
                 return;
             }
         }
-        throw error("File does not exist in that commit.");
+        printError("File does not exist in that commit.");
     }
 
     private static void checkoutWith(String fileName) {
@@ -366,18 +365,16 @@ public class Repository {
     }
 
     // using in addCommand
-    // compared commit files in and working files
+    // compared commit files and working files
     // if equal return true, else return false
     // we only compare name of files
     // NOTE: plainFilenamesIn(): Returns a list of the names of all plain files in the directory DIR,
     // in lexicographic order as Java Strings.
     public static boolean comparedCommitsAndWorking(String workingFileID) {
-        Commit currentCommit = getCurrentCommit();
-        List<String> currentFileIDs = currentCommit.getCopiedFileIDs();
-        // compare filenames
+        // compare fileIDs
         // compare file ? NOT, because different content of file has different name in sha-1
-        for (String currentFileID : currentFileIDs) {
-            if (workingFileID.equals(currentFileID)) {
+        for (Commit.Blob blob : getCurrentCommit().getBlobs()) {
+            if (workingFileID.equals(blob.getCopiedFileID())) {
                 return true;
             }
         }

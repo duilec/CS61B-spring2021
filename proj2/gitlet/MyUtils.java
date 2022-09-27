@@ -107,13 +107,9 @@ public class MyUtils {
         return files;
     }
 
-    // using with blob/commit
+    // using with CWD/STAGING/REMOVED/blob/commit
+    // get file id by using filename and file content(as string)
     public static String getFileID(File file) {
-        return sha1(serialize(file), serialize(readContentsAsString(file)));
-    }
-
-    // using with CWD/STAGING/REMOVED
-    public static String getFileIDbyName(File FOLDER, String fileName) {
-        return sha1(serialize(fileName), serialize(readContentsAsString(join(FOLDER, fileName))));
+        return sha1(serialize(file.getName()), serialize(readContentsAsString(file)));
     }
 }

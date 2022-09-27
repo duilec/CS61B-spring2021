@@ -40,7 +40,7 @@ public class Main {
             // get period by my planning? or get period automatically by RuntimeException?
         // If a user doesn’t input any arguments, print the message Please enter a command. and exit.
         if (args.length == 0) {
-            Utils.exitWithError("Please enter a command.");
+            printErrorWithExit("Please enter a command.");
         }
 
         String firstArg = args[0];
@@ -81,14 +81,14 @@ public class Main {
                 if (args.length == 2 || args.length == 3 || args.length == 4) {
                     validateInitAndOperands("checkout", args, args.length);
                 } else {
-                    Utils.exitWithError("Incorrect operands.");
+                    printErrorWithExit("Incorrect operands.");
                 }
                 Repository.checkoutCommand(args);
                 break;
             // If a user inputs a command that doesn’t exist,
             // print the message No command with that name exists. and exit.
             default:
-                Utils.exitWithError("No command with that name exists.");
+                printErrorWithExit("No command with that name exists.");
         }
     }
 
@@ -102,7 +102,7 @@ public class Main {
      */
     public static void validateOperands(String cmd, String[] args, int n) {
         if (args.length != n) {
-            Utils.exitWithError("Incorrect operands.");
+            printErrorWithExit("Incorrect operands.");
         }
         String firstArg = args[0];
         switch (firstArg) {
@@ -144,7 +144,7 @@ public class Main {
     public static void validateInitAndOperands(String cmd, String[] args, int n) {
         // validate init
         if (!Repository.validateDirAndFolder()) {
-            throw Utils.error("Not in an initialized Gitlet directory.");
+            printError("Not in an initialized Gitlet directory.");
         }
         // validate operands
         validateOperands(cmd, args, n);
@@ -155,7 +155,7 @@ public class Main {
         // filename pattern
         String fileNamePattern = ".+\\..+";
         if (!Pattern.matches(fileNamePattern, fileName)) {
-            Utils.exitWithError("Incorrect operands.");
+            printErrorWithExit("Incorrect operands.");
         }
     }
 
@@ -164,7 +164,7 @@ public class Main {
         // message pattern
         String messagePattern = ".+";
         if (!Pattern.matches(messagePattern, message)) {
-            Utils.exitWithError("Incorrect operands.");
+            printErrorWithExit("Incorrect operands.");
         }
     }
 
@@ -173,7 +173,7 @@ public class Main {
         // two lines pattern
         String twoLinesPattern = "--";
         if (!Pattern.matches(twoLinesPattern, TwoLines)) {
-            Utils.exitWithError("Incorrect operands.");
+            printErrorWithExit("Incorrect operands.");
         }
     }
 
@@ -188,7 +188,7 @@ public class Main {
         // commit id pattern
         String commitIDPattern = "[\\w\\d]+";
         if (!Pattern.matches(commitIDPattern, message)) {
-            Utils.exitWithError("Incorrect operands.");
+            printErrorWithExit("Incorrect operands.");
         }
     }
 }
