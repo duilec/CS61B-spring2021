@@ -107,35 +107,36 @@ public class Main {
         String firstArg = args[0];
         switch (firstArg) {
             case "add":
-                matchFileNameWithError(args[1]);
+                matchFileName(args[1]);
                 break;
             case "commit":
-                if (args[1] == null) {
-                    throw error("Please enter a commit message.");
+                if (args[1].equals("")) {
+                    printErrorWithExit("Please enter a commit message.");
+                } else {
+                    matchMessage(args[1]);
                 }
-                matchMessageWithError(args[1]);
                 break;
             case "rm":
-                matchFileNameWithError(args[1]);
+                matchFileName(args[1]);
                 break;
             case "find":
-                matchMessageWithError(args[1]);
+                matchMessage(args[1]);
                 break;
             case "checkout":
                 // checkout [branch name]
                 if (args.length == 2) {
-                    matchBranchNameWithError(args[1]);
+                    matchBranchName(args[1]);
                 }
                 // checkout -- [file name]
                 if (args.length == 3) {
-                    matchTwoLinesWithError(args[1]);
-                    matchFileNameWithError(args[2]);
+                    matchTwoLines(args[1]);
+                    matchFileName(args[2]);
                 }
                 // checkout [commit id] -- [file name]
                 if (args.length == 4) {
-                    matchCommitIDWithError(args[1]);
-                    matchTwoLinesWithError(args[2]);
-                    matchFileNameWithError(args[3]);
+                    matchCommitID(args[1]);
+                    matchTwoLines(args[2]);
+                    matchFileName(args[3]);
                 }
                 break;
         }
@@ -151,7 +152,7 @@ public class Main {
     }
 
     // "Incorrect operands." with Regular Expression of matching filename
-    private static void matchFileNameWithError(String fileName) {
+    private static void matchFileName(String fileName) {
         // filename pattern
         String fileNamePattern = ".+\\..+";
         if (!Pattern.matches(fileNamePattern, fileName)) {
@@ -160,7 +161,7 @@ public class Main {
     }
 
     // "Incorrect operands." with Regular Expression of matching message
-    private static void matchMessageWithError(String message) {
+    private static void matchMessage(String message) {
         // message pattern
         String messagePattern = ".+";
         if (!Pattern.matches(messagePattern, message)) {
@@ -169,7 +170,7 @@ public class Main {
     }
 
     // "Incorrect operands." with Regular Expression of matching "--"
-    private static void matchTwoLinesWithError(String TwoLines) {
+    private static void matchTwoLines(String TwoLines) {
         // two lines pattern
         String twoLinesPattern = "--";
         if (!Pattern.matches(twoLinesPattern, TwoLines)) {
@@ -178,13 +179,13 @@ public class Main {
     }
 
     // "Incorrect operands." with Regular Expression of matching message
-    private static void matchBranchNameWithError(String branchName) {
+    private static void matchBranchName(String branchName) {
         // message pattern equals branch name pattern
-        matchMessageWithError(branchName);
+        matchMessage(branchName);
     }
 
     // "Incorrect operands." with Regular Expression of matching message
-    private static void matchCommitIDWithError(String message) {
+    private static void matchCommitID(String message) {
         // commit id pattern
         String commitIDPattern = "[\\w\\d]+";
         if (!Pattern.matches(commitIDPattern, message)) {

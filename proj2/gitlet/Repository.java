@@ -77,7 +77,7 @@ public class Repository {
     public static void addCommand(String fileName) {
         // if workingFile is empty, print error msg and exit
         if (!hasFileNameInCWD(fileName)) {
-            printError("File does not exist.");
+            printErrorWithExit("File does not exist.");
         }
         // if workingFiles equal files of current commit,
         // NOT adding to staging area and remove it from the staging area if it is already there
@@ -106,7 +106,15 @@ public class Repository {
 
     public static void commitCommand(String message) {
         if (plainFilenamesIn(STAGING_FOLDER).size() == 0) {
-            printError("No changes added to the commit.");
+            //  The rm command will remove such files, as well as staging them for removal,
+            //  so that they will be untracked after a commit.
+            if (plainFilenamesIn(REMOVED_FOLDER).size() > 0) {
+                for (String fileName : plainFilenamesIn(REMOVED_FOLDER)) {
+                    unrestrictedDelete(join(REMOVED_FOLDER, fileName));
+                }
+                return;
+            }
+            printErrorWithExit("No changes added to the commit.");
         }
         // make new commit, then save it
         Commit commit = makeCommitWithoutInit(message);

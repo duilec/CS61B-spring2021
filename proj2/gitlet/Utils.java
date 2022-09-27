@@ -96,10 +96,6 @@ class Utils {
         }
     }
 
-    static boolean unrestrictedDelete(String file) {
-        return unrestrictedDelete(new File(file));
-    }
-
     /* READING AND WRITING FILE CONTENTS */
 
     /** Return the entire contents of FILE as a byte array.  FILE must
