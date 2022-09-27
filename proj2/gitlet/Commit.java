@@ -60,7 +60,6 @@ public class Commit implements Serializable {
         this.CommitID = sha1(serialize(this));
     }
 
-    // todo: get variable of a commit
     // get currentCommitID
     public String getCommitID() {
         return this.CommitID;

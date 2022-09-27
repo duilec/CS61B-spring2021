@@ -108,19 +108,30 @@ public class Repository {
         if (plainFilenamesIn(STAGING_FOLDER).size() == 0) {
             //  The rm command will remove such files, as well as staging them for removal,
             //  so that they will be untracked after a commit.
+            List<String> deletedFileIDs = new LinkedList<>();
             if (plainFilenamesIn(REMOVED_FOLDER).size() > 0) {
                 for (String fileName : plainFilenamesIn(REMOVED_FOLDER)) {
+                    deletedFileIDs.add(getFileID(join(REMOVED_FOLDER, fileName)));
                     unrestrictedDelete(join(REMOVED_FOLDER, fileName));
                 }
-                return;
+                storeNotDeletedFilesToStaging(deletedFileIDs);
+            } else {
+                printErrorWithExit("No changes added to the commit.");
             }
-            printErrorWithExit("No changes added to the commit.");
         }
         // make new commit, then save it
         Commit commit = makeCommitWithoutInit(message);
         saveObj(COMMITS_FOLDER, commit.getCommitID(), commit);
         // clean staging folder
         cleanStaging();
+    }
+
+    public static void storeNotDeletedFilesToStaging(List<String> fileIDs) {
+        for (Commit.Blob blob : getCurrentCommit().getBlobs()) {
+            if (!fileIDs.contains(blob.getCopiedFileID())) {
+                saveContent(STAGING_FOLDER, blob.getCopiedFileName(), blob.getCopiedFileContent());
+            }
+        }
     }
 
     // Unstage the file if it is currently staged for addition.
@@ -223,7 +234,7 @@ public class Repository {
                 hasCommitWithMessage = true;
             }
         }
-        if (hasCommitWithMessage) {
+        if (!hasCommitWithMessage) {
             printError("Found no commit with that message.");
         }
     }
@@ -296,7 +307,6 @@ public class Repository {
         // save commit
         String currentCommitID = commit.getCommitID();
         saveObj(COMMITS_FOLDER, currentCommitID, commit);
-        // saveDirAndFile(commit, COMMITS_FOLDER, currentCommitID);
 
         // modify current commit ID in active branch
         if (!isInit) {
