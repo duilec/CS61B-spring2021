@@ -159,7 +159,7 @@ public class Repository {
                 unrestrictedDelete(join(STAGING_FOLDER, fileName));
                 // delete it in working
                 if (hasFileNameInCWD(fileName)) {
-                    unrestrictedDelete(fileName);
+                    unrestrictedDelete(join(CWD, fileName));
                 }
                 return;
             }
