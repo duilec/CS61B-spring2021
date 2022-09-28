@@ -85,6 +85,11 @@ public class Main {
                 }
                 Repository.checkoutCommand(args);
                 break;
+            case "reset":
+                validateInitAndOperands("reset", args, 2);
+                Repository.resetCommand(args[1]);
+                break;
+
             // If a user inputs a command that doesn’t exist,
             // print the message No command with that name exists. and exit.
             default:

@@ -219,10 +219,31 @@ public class Repository {
     }
 
     public static void globalLogCommand() {
+        // test24: Check that global-log prints out commits that are no longer in any branch.
+        // Like log, except displays information about all commits ever made.
+        // get all branch, then get all commitIDs in all branch
+        // todo: include parentCommitID??? test NOT, then test YES
+        // all NOT!!!
+//        System.out.println();
+        List<String> IDs = new LinkedList<>();
+        List<String> commitIDs = getCommitIDInBranch(IDs, getCurrentCommit());
         for (String ID : plainFilenamesIn(COMMITS_FOLDER)) {
-            Commit commit = readObject(join(COMMITS_FOLDER, ID), Commit.class);
-            printCommitLog(commit);
+            if (!commitIDs.contains(ID)) {
+                Commit commit = readObject(join(COMMITS_FOLDER, ID), Commit.class);
+                printCommitLog(commit);
+            }
         }
+//        System.out.println();
+    }
+
+    public static List<String> getCommitIDInBranch(List<String> commitIDs, Commit commit) {
+        commitIDs.add(commit.getCommitID());
+        // 22.9.28, only consider one parent
+        List<String> parentIDs = commit.getParentIDs();
+        if (parentIDs != null && parentIDs.size() > 0) {
+            commitIDs.addAll(getCommitIDInBranch(commitIDs, readObject(join(COMMITS_FOLDER, parentIDs.get(0)), Commit.class)));
+        }
+        return commitIDs;
     }
 
     public static void findCommand(String message) {
@@ -271,9 +292,8 @@ public class Repository {
         for (Commit.Blob blob : commit.getBlobs()) {
             // if success about finding filename in commit
             if (fileName.equals(blob.getCopiedFileName())) {
-                // return the file content of filename
-                String content = blob.getCopiedFileContent();
                 // change(save) file content in CWD
+                String content = blob.getCopiedFileContent();
                 saveContent(CWD, fileName, content);
                 return;
             }
@@ -288,6 +308,44 @@ public class Repository {
     private static void checkoutWith(String commitID, String fileName) {
         Commit commit = readObject(join(COMMITS_FOLDER, commitID), Commit.class);
         checkout(commit, fileName);
+    }
+
+    public static void resetCommand(String commitID) {
+        // If no commit with the given id exists, print error with exit
+        boolean hasCommitID = false;
+        for (String ID : plainFilenamesIn(COMMITS_FOLDER)) {
+            if (ID.equals(commitID)) {
+                hasCommitID = true;
+                break;
+            }
+        }
+        if (!hasCommitID) {
+            printErrorWithExit("No commit with that id exists.");
+        }
+        Commit commit = readObject(join(COMMITS_FOLDER, commitID), Commit.class);
+        // todo: maybe error
+        // If a working file is untracked in the current branch and would be overwritten by the reset
+        // i.e. working file has same name with tracked file in the current branch(the given commit???)
+        // but NOT has same contents(aka ID)
+        // so, print error with exit
+        List<String> copiedFileNames = commit.getCopiedFileNames();
+        List<String> copiedFileIDs = commit.getCopiedFileIDs();
+        for (String workingFileName : plainFilenamesIn(CWD)) {
+            String workingFileID = getFileID(join(CWD, workingFileName));
+            if (copiedFileNames.contains(workingFileName)
+                && !copiedFileIDs.contains(workingFileID)) {
+                printErrorWithExit("There is an untracked file in the way; delete it, or add and commit it first.");
+            }
+        }
+        // Checks out all the files tracked by the given commit.
+        // check out i.e. find it in commit, then put it in CWD
+        for (String copiedFileName : commit.getCopiedFileNames()) {
+            checkout(commit, copiedFileName);
+        }
+        //todo: Removes tracked files that are not present in that commit(the given commit).
+
+        // Also moves the current branch’s head to that commit node.
+        saveActiveBranch(extractHEADThenGetActiveBranchName(), commitID);
     }
 
 
@@ -331,7 +389,6 @@ public class Repository {
     // 22.9.21, just get one parentID, NOT consider Merge(two parent)
     private static List<String> getParentIDs() {
         List<String> parentIDs = new LinkedList<>();
-
         // extract HEAD, then get ActiveBranchName
         String activeBranchName = extractHEADThenGetActiveBranchName();
         // extract active branch, then get current CommitID AS parentID
@@ -410,11 +467,28 @@ public class Repository {
         }
         // how to get Pacific Standard Time in java?
         // different during date and timestamp:
-        // i.e. Timestamp: 2022-09-25 20:52:21.425 vs Date: Wed Dec 31 16:00:00 1969 -0800
+        // i.e. Timestamp: 2022-09-25 20:52:21.425 diff. Date: Wed Dec 31 16:00:00 1969 -0800
         SimpleDateFormat dateFormat = new SimpleDateFormat("E MMM dd HH:mm:ss yyyy Z");
         System.out.println("Date: " + dateFormat.format(commit.getDate()));
         System.out.println(commit.getMessage());
         System.out.println();
+    }
+
+    // using in log command and global-log command
+    private static void printCommitLogNotNewline(Commit commit) {
+        System.out.println("===");
+        System.out.println("commit " + commit.getCommitID());
+        List<String> parentIDs = commit.getParentIDs();
+        if (parentIDs != null && parentIDs.size() == 2) {
+            System.out.println("Merge: " + parentIDs.get(0).substring(0, 7) + " "
+                    + parentIDs.get(1).substring(0, 7));
+        }
+        // how to get Pacific Standard Time in java?
+        // different during date and timestamp:
+        // i.e. Timestamp: 2022-09-25 20:52:21.425 diff. Date: Wed Dec 31 16:00:00 1969 -0800
+        SimpleDateFormat dateFormat = new SimpleDateFormat("E MMM dd HH:mm:ss yyyy Z");
+        System.out.println("Date: " + dateFormat.format(commit.getDate()));
+        System.out.println(commit.getMessage());
     }
 
     // using in status command
