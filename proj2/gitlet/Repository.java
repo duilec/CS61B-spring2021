@@ -32,14 +32,15 @@ public class Repository {
     public static final File CWD = new File(System.getProperty("user.dir"));
     /** The .gitlet directory. */
     public static final File GITLET_DIR = join(CWD, ".gitlet");
-    /** The staging area folder. */
-    public static final File STAGING_FOLDER = join(GITLET_DIR, "staging");
+    /** The addition area folder. */
+    // note: staging folder include addition area and removed area
+    public static final File ADDITION_FOLDER = join(GITLET_DIR, "addition");
+    /** The removed area folder. */
+    public static final File REMOVED_FOLDER = join(GITLET_DIR, "removed");
     /** The commits of directory. */
     public static final File COMMITS_FOLDER = join(GITLET_DIR, "commits");
     /** The blobs and subtrees of directory. */
     public static final File BLOB_FOLDER = join(GITLET_DIR, "blobs");
-    /** The removed area folder. */
-    public static final File REMOVED_FOLDER = join(GITLET_DIR, "removed");
     /** The branch of folder. */
     public static final File BRANCH_FOLDER = join(GITLET_DIR, "branch");
 
@@ -47,6 +48,7 @@ public class Repository {
     public static final String headName = "HEAD";
     /** The name of master(branch) */
     public static final String masterName = "master";
+    /** The commit id of head */
 
     // after "branch", we will get two parent IDs
     private transient String[] parentID;
@@ -86,12 +88,11 @@ public class Repository {
         // because NOT need to add
         // equal ==> totally equal, NOT only name but also content, so, we should use id(sha-1)
         String fileID = getFileID(join(CWD, fileName));
-        for (Commit.Blob blob : getCurrentCommit().getBlobs()) {
-            String ID = blob.getCopiedFileID();
+        for (Blob blob : getCurrentCommit().getBlobs()) {
             if (fileID.equals(blob.getCopiedFileID())) {
                 // 22.9.24: choose join()
                 unrestrictedDelete(join(REMOVED_FOLDER, fileName));
-                unrestrictedDelete(join(STAGING_FOLDER, fileName));
+                unrestrictedDelete(join(ADDITION_FOLDER, fileName));
                 return;
             }
         }
@@ -100,59 +101,71 @@ public class Repository {
         File workingFile = join(CWD, fileName);
         String workingFileID = getFileID(workingFile);
         if (!comparedCommitsAndWorking(workingFileID)) {
-            saveStagingFile(fileName, readContentsAsString(workingFile));
+            saveAdditionFile(fileName, readContentsAsString(workingFile));
         }
     }
 
-    public static void commitCommand(String message) {
-        if (plainFilenamesIn(STAGING_FOLDER).size() == 0) {
-            //  The rm command will remove such files, as well as staging them for removal,
-            //  so that they will be untracked after a commit.
-            List<String> deletedFileIDs = new LinkedList<>();
-            if (plainFilenamesIn(REMOVED_FOLDER).size() > 0) {
-                for (String fileName : plainFilenamesIn(REMOVED_FOLDER)) {
-                    deletedFileIDs.add(getFileID(join(REMOVED_FOLDER, fileName)));
-                    unrestrictedDelete(join(REMOVED_FOLDER, fileName));
-                }
-                storeNotDeletedFilesToStaging(deletedFileIDs);
-            } else {
-                printErrorWithExit("No changes added to the commit.");
-            }
+    private static void commitCommandHelper(String message, boolean afterMerge, String branchName) {
+        if (message.equals("")) {
+            printErrorWithExit("Please enter a commit message.");
+        }
+        if (plainFilenamesIn(ADDITION_FOLDER).size() == 0 && plainFilenamesIn(REMOVED_FOLDER).size() == 0) {
+            // todo: delete a file in commit constructor or in commit command
+            // The rm command will remove such files, as well as staging them for removal,
+            // so that they will be untracked after a commit.
+            printErrorWithExit("No changes added to the commit.");
         }
         // make new commit, then save it
-        Commit commit = makeCommitWithoutInit(message);
+        Commit commit;
+        if (afterMerge) {
+            commit = makeCommitAfterMerge(message, branchName);
+        } else {
+            commit = makeCommitWithoutInit(message);
+        }
         saveObj(COMMITS_FOLDER, commit.getCommitID(), commit);
         // clean staging folder
         cleanStaging();
     }
 
+    public static void commitCommand(String message) {
+        commitCommandHelper(message, false, null);
+    }
+
+
+
+    // store not deleted files in staging folder
     public static void storeNotDeletedFilesToStaging(List<String> fileIDs) {
-        for (Commit.Blob blob : getCurrentCommit().getBlobs()) {
+        for (Blob blob : getCurrentCommit().getBlobs()) {
             if (!fileIDs.contains(blob.getCopiedFileID())) {
-                saveContent(STAGING_FOLDER, blob.getCopiedFileName(), blob.getCopiedFileContent());
+                saveContent(ADDITION_FOLDER, blob.getCopiedFileName(), blob.getCopiedFileContent());
             }
         }
     }
 
     // Unstage the file if it is currently staged for addition.
     public static void rmCommand(String fileName) {
-        // get stagingFileIDs
-        List<String> stagingFileIDs = new LinkedList<>();
-        for (String stagingFileName : plainFilenamesIn(STAGING_FOLDER)) {
-            String stagingFileID = getFileID(join(STAGING_FOLDER, stagingFileName));
-            stagingFileIDs.add(stagingFileID);
-        }
-        // get fileID if stagingFiles exist
-        if (stagingFileIDs.size() != 0) {
-            String fileID = getFileID(join(STAGING_FOLDER, fileName));
-            // Unstage the file if it is currently staged for addition.
-            for (String stagingFileID : stagingFileIDs) {
-                if (fileID.equals(stagingFileID)) {
-                    unrestrictedDelete(join(STAGING_FOLDER, fileName));
-                    return;
+        // in staging
+        // Unstage the file if it is currently staged for addition.
+        if (plainFilenamesIn(ADDITION_FOLDER).contains(fileName)) {
+            // get stagingFileIDs
+            List<String> stagingFileIDs = new LinkedList<>();
+            for (String stagingFileName : plainFilenamesIn(ADDITION_FOLDER)) {
+                String stagingFileID = getFileID(join(ADDITION_FOLDER, stagingFileName));
+                stagingFileIDs.add(stagingFileID);
+            }
+            // get fileID if stagingFiles exist
+            if (stagingFileIDs.size() != 0) {
+                String fileID = getFileID(join(ADDITION_FOLDER, fileName));
+                // Unstage the file if it is currently staged for addition.
+                for (String stagingFileID : stagingFileIDs) {
+                    if (fileID.equals(stagingFileID)) {
+                        unrestrictedDelete(join(ADDITION_FOLDER, fileName));
+                        return;
+                    }
                 }
             }
         }
+        // in cwd
         // If the file is tracked in the current commit,
         // stage it for removal and
         // remove the file from the working directory if the user has not already done so
@@ -160,18 +173,18 @@ public class Repository {
         // compared ID or Name? choose Name in 22.9.27
         // get current commit
         Commit currentCommit = getCurrentCommit();
-        for (Commit.Blob blob : currentCommit.getBlobs()) {
+        for (Blob blob : currentCommit.getBlobs()) {
             if (fileName.equals(blob.getCopiedFileName())) {
-                // todo: delete join() or readObject(join())???
                 // 22.9.24: choose join()
                 // save(stage it for removal)
                 saveRemovedFile(fileName, blob.getCopiedFileContent());
                 // delete it in staging
-                unrestrictedDelete(join(STAGING_FOLDER, fileName));
+                unrestrictedDelete(join(ADDITION_FOLDER, fileName));
                 // delete it in working
                 if (hasFileNameInCWD(fileName)) {
-                    unrestrictedDelete(join(CWD, fileName));
+                    restrictedDelete(join(CWD, fileName));
                 }
+                // delete it in
                 return;
             }
         }
@@ -208,42 +221,23 @@ public class Repository {
         if (commit == null) {
             return;
         }
+        printCommitLog(commit);
         // 22.9.25, only consider one parent
         List<String> parentIDs = commit.getParentIDs();
-        boolean hasParentIDs = (parentIDs != null);
-        printCommitLog(commit);
-        if (hasParentIDs) {
+        if (parentIDs.size() > 0) {
             Commit parentCommit = readObject(join(COMMITS_FOLDER, parentIDs.get(0)), Commit.class);
             printCommitLogInActiveBranch(parentCommit);
         }
     }
 
     public static void globalLogCommand() {
-        // test24: Check that global-log prints out commits that are no longer in any branch.
         // Like log, except displays information about all commits ever made.
-        // get all branch, then get all commitIDs in all branch
-        // todo: include parentCommitID??? test NOT, then test YES
-        // all NOT!!!
-//        System.out.println();
-        List<String> IDs = new LinkedList<>();
-        List<String> commitIDs = getCommitIDInBranch(IDs, getCurrentCommit());
+        // The order of the commits does not matter.
+        // i.e. prints all commits in Commits
         for (String ID : plainFilenamesIn(COMMITS_FOLDER)) {
-            if (!commitIDs.contains(ID)) {
                 Commit commit = readObject(join(COMMITS_FOLDER, ID), Commit.class);
                 printCommitLog(commit);
-            }
         }
-//        System.out.println();
-    }
-
-    public static List<String> getCommitIDInBranch(List<String> commitIDs, Commit commit) {
-        commitIDs.add(commit.getCommitID());
-        // 22.9.28, only consider one parent
-        List<String> parentIDs = commit.getParentIDs();
-        if (parentIDs != null && parentIDs.size() > 0) {
-            commitIDs.addAll(getCommitIDInBranch(commitIDs, readObject(join(COMMITS_FOLDER, parentIDs.get(0)), Commit.class)));
-        }
-        return commitIDs;
     }
 
     public static void findCommand(String message) {
@@ -268,28 +262,24 @@ public class Repository {
     public static void checkoutCommand(String[] args){
         // checkout [branch name]
         if (args.length == 2) {
-
+            checkoutWithBranchName(args[1]);
         }
         // checkout -- [file name]
         // args[2] ==> [file name]
         if (args.length == 3) {
             // just only consider head(current) commit!!!
-            checkoutWith(args[2]);
+            checkoutWithFileName(args[2]);
         }
         // checkout [commit id] -- [file name]
         // args[2] ==> [commit id]; args[4] ==> [file name]
         if (args.length == 4) {
-            checkoutWith(args[1], args[3]);
+            checkoutWithCommitIDAndFileName(args[1], args[3]);
         }
-    }
-
-    private static void checkoutWithBranchName(String branchName) {
-
     }
 
     private static void checkout(Commit commit, String fileName) {
         // finding filename in currentCommit
-        for (Commit.Blob blob : commit.getBlobs()) {
+        for (Blob blob : commit.getBlobs()) {
             // if success about finding filename in commit
             if (fileName.equals(blob.getCopiedFileName())) {
                 // change(save) file content in CWD
@@ -301,64 +291,134 @@ public class Repository {
         printError("File does not exist in that commit.");
     }
 
-    private static void checkoutWith(String fileName) {
+    private static void checkoutWithFileName(String fileName) {
         checkout(getCurrentCommit(), fileName);
     }
 
-    private static void checkoutWith(String commitID, String fileName) {
+    private static void checkoutWithBranchName(String branchName) {
+        // If no branch with that name exists
+        List<String> branchNames = plainFilenamesIn(BRANCH_FOLDER);
+        if (!branchNames.contains(branchName)) {
+            printErrorWithExit("No such branch exists.");
+        }
+        // If that branch is the current branch
+        if (extractHEADThenGetActiveBranchName().equals(branchName)) {
+            printErrorWithExit("No need to checkout the current branch.");
+        }
+        // get commit
+        String commitID = readObject(join(BRANCH_FOLDER, branchName), Pointer.class).getCommitID();
+        Commit branchCommit = readObject(join(COMMITS_FOLDER, commitID), Commit.class);
+        //  If a working file is untracked in the current branch and would be overwritten by the checkout
+         checkUntrackedFileError();
+        // Takes all files in the commit at the head of the given branch,
+        // and puts them in the working directory, overwriting the versions of the files that are already there if they exist.
+        // firstly, deleted all files in CWD
+        for (String name : plainFilenamesIn(CWD)) {
+            restrictedDelete(name);
+        }
+        // secondly, checkout all copiedFile in commit
+        for (String copiedFileName : branchCommit.getCopiedFileNames()) {
+            checkout(branchCommit, copiedFileName);
+        }
+        // Also, at the end of this command, the given branch will now be considered the current branch (HEAD)
+        saveHEAD(branchName, getInitCommitID());
+    }
+
+    private static void checkoutWithCommitIDAndFileName(String commitID, String fileName) {
+        // get commitID by short(abbreviated) id
+        if (commitID.length() == 8) {
+            for (String ID : plainFilenamesIn(COMMITS_FOLDER)) {
+                if (ID.substring(0, 8).equals(commitID)) {
+                    commitID = ID;
+                    break;
+                }
+            }
+        }
+        // check "No commit with that id exists."
+        checkNotExistSameFileInFolder(commitID, COMMITS_FOLDER, "No commit with that id exists.");
         Commit commit = readObject(join(COMMITS_FOLDER, commitID), Commit.class);
+        // check "File does not exist in that commit."
+        checkNotExistSameFileInCommit(fileName, commit, "File does not exist in that commit.");
         checkout(commit, fileName);
     }
 
     public static void resetCommand(String commitID) {
         // If no commit with the given id exists, print error with exit
-        boolean hasCommitID = false;
-        for (String ID : plainFilenamesIn(COMMITS_FOLDER)) {
-            if (ID.equals(commitID)) {
-                hasCommitID = true;
-                break;
-            }
-        }
-        if (!hasCommitID) {
-            printErrorWithExit("No commit with that id exists.");
-        }
+        checkNotExistSameFileInFolder(commitID, COMMITS_FOLDER, "No commit with that id exists.");
         Commit commit = readObject(join(COMMITS_FOLDER, commitID), Commit.class);
-        // todo: maybe error
-        // If a working file is untracked in the current branch and would be overwritten by the reset
-        // i.e. working file has same name with tracked file in the current branch(the given commit???)
-        // but NOT has same contents(aka ID)
-        // so, print error with exit
-        List<String> copiedFileNames = commit.getCopiedFileNames();
-        List<String> copiedFileIDs = commit.getCopiedFileIDs();
+        checkUntrackedFileError();
+        // note, removing at first then, checkout
+        // firstly,
+        // Removes tracked files that are not present in that commit(the given commit).
+        // i.e. remove files in cwd
         for (String workingFileName : plainFilenamesIn(CWD)) {
-            String workingFileID = getFileID(join(CWD, workingFileName));
-            if (copiedFileNames.contains(workingFileName)
-                && !copiedFileIDs.contains(workingFileID)) {
-                printErrorWithExit("There is an untracked file in the way; delete it, or add and commit it first.");
+            if (!commit.getCopiedFileIDs().contains(getFileID(join(CWD, workingFileName)))) {
+                restrictedDelete(join(CWD, workingFileName));
             }
         }
+        // secondly,
         // Checks out all the files tracked by the given commit.
-        // check out i.e. find it in commit, then put it in CWD
+        // check out i.e. find it in commits folder, then put it in CWD
         for (String copiedFileName : commit.getCopiedFileNames()) {
             checkout(commit, copiedFileName);
         }
-        //todo: Removes tracked files that are not present in that commit(the given commit).
-
         // Also moves the current branch’s head to that commit node.
         saveActiveBranch(extractHEADThenGetActiveBranchName(), commitID);
+        // The staging(removed, addition) area is cleared.
+        cleanStaging();
     }
 
+    // check not same file exists in commit
+    private static void checkNotExistSameFileInCommit(String fileName, Commit commit, String message) {
+        boolean fileExist = false;
+        for (String name : commit.getCopiedFileNames()) {
+            if (fileName.equals(name)) {
+                fileExist = true;
+                break;
+            }
+        }
+        // the same file not exists in commit, so print error and exit
+        if (!fileExist) {
+            printErrorWithExit(message);
+        }
+    }
+    
+    private static void checkUntrackedFileError() {
+        // If a working file is untracked in the current branch and would be overwritten by the merge/reset/checkout
+        // i.e. working file has same name with tracked file in the current branch(NOT the given commit)
+        // but NOT has same contents(aka ID)
+        // so, print error with exit
+        // note: it is current commit in current branch NOT commit in target branch
+        // note: The commit is said to be tracking the saved files
+        List<String> copiedFileIDs = getCurrentCommit().getCopiedFileIDs();
+        List<String> additionFileIDs = new LinkedList<>();
+        for (String fileName : plainFilenamesIn(ADDITION_FOLDER)) {
+            additionFileIDs.add(getFileID(join(ADDITION_FOLDER, fileName)));
+        }
+        for (String workingFileName : plainFilenamesIn(CWD)) {
+            String workingFileID = getFileID(join(CWD, workingFileName));
+            // if commit and addition both not contain working filename
+            if (!copiedFileIDs.contains(workingFileID) && !additionFileIDs.contains(workingFileID)) {
+                printErrorWithExit("There is an untracked file in the way; delete it, or add and commit it first.");
+            }
+        }
+    }
 
     // create a commit, if success, return a commit, else return null
-    private static Commit makeCommit(String msg, Boolean isInit) {
+    private static Commit makeCommit(String msg, boolean isInit, String otherBranchName) {
         // TODO: two parent?
         // make commit
         Commit commit;
         Date date = getDate(isInit);
         if (isInit) {
-            commit = new Commit(msg, date, null);
+            commit = new Commit(msg, date, new LinkedList<>());
         } else {
-            List<String> parentID = getParentIDs();
+            List<String> parentID;
+            if (otherBranchName == null) {
+                parentID = getFirstParentID();
+            } else {
+                parentID = getTwoParentIDs(otherBranchName);
+            }
             commit = new Commit(msg, date, parentID);
         }
 
@@ -376,6 +436,299 @@ public class Repository {
         return commit;
     }
 
+    public static void branchCommand(String branchName) {
+        //  If a branch with the given name already exists, print the error message
+        checkExistSameFileInFolder(branchName, BRANCH_FOLDER, "A branch with that name already exists.");
+        saveBranch(branchName, getCurrentCommit().getCommitID());
+    }
+
+    public static void rmBranchCommand(String branchName) {
+        // check the branch not exits
+        checkNotExistSameFileInFolder(branchName, BRANCH_FOLDER, "A branch with that name does not exist.");
+        // check the branch is current branch, it can't be removed
+        if (extractHEADThenGetActiveBranchName().equals(branchName)) {
+            printErrorWithExit("Cannot remove the current branch.");
+        }
+        unrestrictedDelete(join(BRANCH_FOLDER, branchName));
+    }
+
+    public static void mergeCommand(String branchName) {
+        // If there are staged additions or removals present, print the error message and exit.
+        if (plainFilenamesIn(ADDITION_FOLDER).size() > 0 || plainFilenamesIn(REMOVED_FOLDER).size() > 0) {
+            printErrorWithExit("You have uncommitted changes.");
+        }
+        // If a branch with the given name does not exist, print the error message and exit.
+        if (!plainFilenamesIn(BRANCH_FOLDER).contains(branchName)) {
+            printErrorWithExit("A branch with that name does not exist.");
+        }
+        // If attempting to merge a branch with itself, print the error message and exit.
+        if (extractHEADThenGetActiveBranchName().equals(branchName)) {
+            printErrorWithExit("Cannot merge a branch with itself.");
+        }
+        // todo: If merge would generate an error because the commit that it does has no changes in it, just let the normal commit error message for this go through.
+        //  i.e. print error in commit
+
+        // If an untracked file in the current commit would be overwritten or deleted by the merge, print message and exit
+        checkUntrackedFileError();
+        // get split commit
+        Commit split = getSplitCommit(branchName);
+        String splitCommitID = split.getCommitID();
+        // If the split point is the same commit as the given branch, print error and exit
+        if (splitCommitID.equals(extractBranchThenGetCommitID(branchName))) {
+            printErrorWithExit("Given branch is an ancestor of the current branch.");
+        }
+        // If the split point is the current branch, print error and exit
+        if (splitCommitID.equals(getCurrentCommit().getCommitID())){
+            printErrorWithExit("Current branch fast-forwarded.");
+        }
+        // get the target branch commit AS "other"
+        String otherCommitID = extractBranchThenGetCommitID(branchName);
+        Commit other = readObject(join(COMMITS_FOLDER, otherCommitID), Commit.class);
+        merge(split, other);
+        String mergeMessage ="Merged " + branchName + " into "+ extractHEADThenGetActiveBranchName() + ".";
+        commitCommandHelper(mergeMessage, true, branchName);
+    }
+
+    private static Commit getSplitCommit(String branchName) {
+        // mark the current(head) branch
+        Commit headCommit = getCurrentCommit();
+        markBranch(headCommit, 0);
+        // get the other branch commit then, mark the other branch
+        String otherCommitID = extractBranchThenGetCommitID(branchName);
+        Commit otherCommit = readObject(join(COMMITS_FOLDER, otherCommitID), Commit.class);
+        markBranch(otherCommit, 0);
+        // get init commit distance as smallest split commit
+        Commit splitCommit = readObject(join(COMMITS_FOLDER, getInitCommitID()), Commit.class);
+        int splitDistance = splitCommit.getDistance();
+        for (String commitID : plainFilenamesIn(COMMITS_FOLDER)) {
+            Commit commit = readObject(join(COMMITS_FOLDER, commitID), Commit.class);
+            if (commit.getMarkCount() == 2 && commit.getDistance() < splitDistance) {
+                splitCommit = commit;
+                splitDistance = commit.getDistance();
+            }
+        }
+        // reset marked count in all commits
+        for (String commitID : plainFilenamesIn(COMMITS_FOLDER)) {
+            Commit commit = readObject(join(COMMITS_FOLDER, commitID), Commit.class);
+            commit.resetMarkCount();
+            commit.resetDistance();
+            saveObj(COMMITS_FOLDER, commit.getCommitID(), commit);
+        }
+        return splitCommit;
+    }
+
+    private static void markBranch(Commit branchCommit, int distance) {
+        // 22.9.30, consider first parent as parent
+        // log command:  following the first parent commit links,
+        // ignoring any second parents found in merge commits.
+        // update marked count and distance
+        branchCommit.updatedMarkCount();
+        branchCommit.updatedDistance(distance);
+        saveObj(COMMITS_FOLDER, branchCommit.getCommitID(), branchCommit);
+        // get first parent commit, then mark it
+        // note: distance need to plus 1
+        if (branchCommit.getParentIDs().size() > 0) {
+            String firstParentID = branchCommit.getParentIDs().get(0);
+            branchCommit = readObject(join(COMMITS_FOLDER, firstParentID), Commit.class);
+            distance += 1;
+            markBranch(branchCommit, distance);
+        }
+    }
+
+    public static void merge(Commit split, Commit other){
+        Commit head = getCurrentCommit();
+        // todo: error!!! clean cwd, we may add/rm same file before merge
+//         cleanWorking();
+        // get all filenames and file ids
+        // using "set" that NOT duplicate elements
+        Set<String> allFileNames = getAllFileNames(split, head, other);
+        // using 8 rules to store some files to cwd, addition folder and removed folder
+        rulesDealFiles(split, head, other, allFileNames);
+    }
+
+    private static void rulesDealFiles(Commit split, Commit head, Commit other, Set<String> allFileNames) {
+        List<String> fileNamesInSplit = split.getCopiedFileNames();
+        List<String> fileNamesInHead = head.getCopiedFileNames();
+        List<String> fileNamesInOther = other.getCopiedFileNames();
+        List<String> fileIDsInHead = head.getCopiedFileIDs();
+        List<String> fileIDsInOther = other.getCopiedFileIDs();
+        // if head not modified "isHeadModified" keep "false"
+        // else set "isHeadModified" to "true", "isOtherModified" do too
+        boolean isHeadModified = false;
+        boolean isOtherModified = false;
+        for (String fileName : allFileNames) {
+            // split, head and other contain a file with same filename
+            if (fileNamesInSplit.contains(fileName) && fileNamesInHead.contains(fileName) && fileNamesInOther.contains(fileName)) {
+                // get fileID in split
+                String fileID = null;
+                for (Blob blob : split.getBlobs()) {
+                    if (fileName.equals(blob.getCopiedFileName())) {
+                        fileID = blob.getCopiedFileID();
+                        break;
+                    }
+                }
+                // if head not modified "isHeadModified" keep "false"(i.e.head has special fileID)
+                // else set "isHeadModified" to "true"(i.e.head NOT special fileID), "isOtherModified" do too
+                isHeadModified = !fileIDsInHead.contains(fileID);
+                isOtherModified = !fileIDsInOther.contains(fileID);
+                // 1. modified in other but not head => file from other to staged for addition and put it to cwd
+                if (isOtherModified && !isHeadModified) {
+                    for (Blob blob : other.getBlobs()) {
+                        if (blob.getCopiedFileName().equals(fileName)) {
+                            saveWorkingFile(fileName, blob.getCopiedFileContent());
+                            saveAdditionFile(fileName, blob.getCopiedFileContent());
+                            break;
+                        }
+                    }
+                }
+                // 2. modified in head but not other => file from head to staged for addition and put it to cwd
+                if (isHeadModified && !isOtherModified) {
+                    for (Blob blob : head.getBlobs()) {
+                        if (blob.getCopiedFileName().equals(fileName)) {
+                            saveWorkingFile(fileName, blob.getCopiedFileContent());
+                            saveAdditionFile(fileName, blob.getCopiedFileContent());
+                            break;
+                        }
+                    }
+                }
+                //  modified in head and other in same/different way
+                if (isOtherModified && isHeadModified) {
+                    String fileIDInHead = null;
+                    String fileIDInOther = null;
+                    Blob headBlob = null;
+                    Blob otherBlob = null;
+                    // get head blob, file id and other blob, file id
+                    for (Blob blob : head.getBlobs()) {
+                        if (blob.getCopiedFileName().equals(fileName)) {
+                            headBlob = blob;
+                            fileIDInHead = blob.getCopiedFileID();
+                            break;
+                        }
+                    }
+                    for (Blob blob : other.getBlobs()) {
+                        if (blob.getCopiedFileName().equals(fileName)) {
+                            otherBlob = blob;
+                            fileIDInOther = blob.getCopiedFileID();
+                            break;
+                        }
+                    }
+                    // 3. modified in head and other in same way => file from head/other to staged for addition and put it to cwd
+                    // a filename in cwd but not in split, head and other, we don't care about it
+                    if (fileIDInHead.equals(fileIDInOther)) {
+                        saveWorkingFile(fileName, headBlob.getCopiedFileContent());
+                        saveAdditionFile(fileName, headBlob.getCopiedFileContent());
+                    // 4. modified in head and other in different way => store conflict file to cwd and addition folder
+                    } else {
+                        String conflictContents = makeConflictContents(headBlob.getCopiedFileContent(), otherBlob.getCopiedFileContent());
+                        saveWorkingFile(fileName, conflictContents);
+                        saveAdditionFile(fileName, conflictContents);
+                        printError("Encountered a merge conflict.");
+                    }
+                    break;
+                }
+            }
+            // split and other NOT contain a file with same filename but head contain
+            // 5. not in split nor other but in head => file from head to staged for addition
+            if (!fileNamesInSplit.contains(fileName) && !fileNamesInOther.contains(fileName) && fileNamesInHead.contains(fileName)) {
+                for (Blob blob : head.getBlobs()) {
+                    if (blob.getCopiedFileName().equals(fileName)) {
+                        saveWorkingFile(fileName, blob.getCopiedFileContent());
+                        saveAdditionFile(fileName, blob.getCopiedFileContent());
+                        break;
+                    }
+                }
+            }
+            // split and head NOT contain a file with same filename but other contain
+            // 6. not in split nor head but in other => file from other to staged for addition
+            if (!fileNamesInSplit.contains(fileName) && !fileNamesInHead.contains(fileName) && fileNamesInOther.contains(fileName)) {
+                for (Blob blob : other.getBlobs()) {
+                    if (blob.getCopiedFileName().equals(fileName)) {
+                        saveWorkingFile(fileName, blob.getCopiedFileContent());
+                        saveAdditionFile(fileName, blob.getCopiedFileContent());
+                        break;
+                    }
+                }
+            }
+            // 7. unmodified in head but not present in other => file from head to staged for removed
+            if (fileNamesInSplit.contains(fileName) && fileNamesInHead.contains(fileName) && !fileNamesInOther.contains(fileName)) {
+                for (Blob blob : head.getBlobs()) {
+                    if (blob.getCopiedFileName().equals(fileName)) {
+                        saveRemovedFile(fileName, blob.getCopiedFileContent());
+                        // delete it in working
+                        if (hasFileNameInCWD(fileName)) {
+                            restrictedDelete(join(CWD, fileName));
+                        }
+                        break;
+                    }
+                }
+            }
+            // 8. unmodified in other but not present in head => file from other to staged for removed
+            if (fileNamesInSplit.contains(fileName) && fileNamesInOther.contains(fileName) && !fileNamesInHead.contains(fileName)) {
+                for (Blob blob : other.getBlobs()) {
+                    if (blob.getCopiedFileName().equals(fileName)) {
+                        saveRemovedFile(fileName, blob.getCopiedFileContent());
+                        // TODO: MAYBE ERROR delete it in working
+                        if (hasFileNameInCWD(fileName)) {
+                            restrictedDelete(join(CWD, fileName));
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    // get all filenames
+    private static Set<String> getAllFileNames(Commit split, Commit head, Commit other) {
+        Set<String> fileNames = new HashSet<>();
+        for (String fileName : split.getCopiedFileNames()) {
+            fileNames.add(fileName);
+        }
+        for (String fileName : head.getCopiedFileNames()) {
+            fileNames.add(fileName);
+        }
+        for (String fileName : other.getCopiedFileNames()) {
+            fileNames.add(fileName);
+        }
+        return fileNames;
+    }
+
+    private static String makeConflictContents(String fileContentsFromHead, String fileContentsFromOther) {
+        // you can't use set String contents = null
+        // you can't use method of concat()
+        String contents = "<<<<<<< HEAD" + "\n"
+                          + fileContentsFromHead
+                          + "=======" + "\n"
+                          + fileContentsFromOther
+                          +">>>>>>>" + "\n";
+        return contents;
+    }
+
+    // check the same file not exists in folder
+    private static void checkNotExistSameFileInFolder(String fileName, File FOLDER, String message) {
+        boolean existSameFile = false;
+        for (String name : plainFilenamesIn(FOLDER)) {
+            if (name.equals(fileName)) {
+                existSameFile = true;
+                break;
+            }
+        }
+        // the same file not exists in folder, so print error and exit
+        if (!existSameFile) {
+            printErrorWithExit(message);
+        }
+    }
+
+    // check the same file exists in folder
+    private static void checkExistSameFileInFolder(String fileName, File FOLDER, String message) {
+        for (String name : plainFilenamesIn(FOLDER)) {
+            if (name.equals(fileName)) {
+                // the same file exists in folder, so print error and exit
+                printErrorWithExit(message);
+            }
+        }
+    }
+
     // get date by "isInit = true OR false"
     private static Date getDate(boolean isInit) {
         if (isInit) {
@@ -387,14 +740,25 @@ public class Repository {
     }
 
     // 22.9.21, just get one parentID, NOT consider Merge(two parent)
-    private static List<String> getParentIDs() {
+    // log command:  following the first parent commit links,
+    // ignoring any second parents found in merge commits.
+    private static List<String> getFirstParentID() {
         List<String> parentIDs = new LinkedList<>();
-        // extract HEAD, then get ActiveBranchName
-        String activeBranchName = extractHEADThenGetActiveBranchName();
-        // extract active branch, then get current CommitID AS parentID
-        String currentCommitID = extractActiveBranchThenGetCurrentCommitID(activeBranchName);
-        // add parentIDs
+        // get current CommitID AS parentID
+        String currentCommitID = getCurrentCommit().getCommitID();
         parentIDs.add(currentCommitID);
+        return parentIDs;
+    }
+
+    // get two parentIDs
+    private static List<String> getTwoParentIDs(String otherBranchName) {
+        List<String> parentIDs = new LinkedList<>();
+        // get current CommitID AS parentID
+        String currentCommitID = getCurrentCommit().getCommitID();
+        parentIDs.add(currentCommitID);
+        // get CommitID in other branch AS parentID
+        String otherBranchCommitID = extractBranchThenGetCommitID(otherBranchName);
+        parentIDs.add(otherBranchCommitID);
         return parentIDs;
     }
 
@@ -417,26 +781,54 @@ public class Repository {
         return activeBranch.getCommitID();
     }
 
-    // save(change) active
+    public static String extractBranchThenGetCommitID(String BranchName) {
+        Pointer branch = readObject(join(BRANCH_FOLDER, BranchName), Pointer.class);
+        return branch.getCommitID();
+    }
+
+    public static String getInitCommitID () {
+        Pointer HEAD = readObject(join(GITLET_DIR, headName), Pointer.class);
+        return HEAD.getInitCommitID();
+    }
+
+    // save(change) active branch
     public static void saveActiveBranch(String branchName, String commitID) {
+        saveBranch(branchName, commitID);
+    }
+
+    // save(change) a branch
+    public static void saveBranch(String branchName, String commitID) {
         Pointer branch = new Pointer(false, branchName, commitID);
         branch.saveBranchFile();
     }
 
     // save(change) HEAD
-    public static void saveHEAD(String activeBranchName, String... initCommitID) {
+    // we always store initCommitID in HEAD
+    public static void saveHEAD(String activeBranchName, String initCommitID) {
         Pointer HEAD = new Pointer(true, activeBranchName, initCommitID);
         HEAD.saveHEADFile();
+        HEAD.saveHEADFile();
+    }
+
+    // save(change) a split
+    public static void saveSplit(String commitID) {
+        Pointer branch = new Pointer(false, null, commitID);
+        branch.saveBranchFile();
     }
 
     // make Commit without initialization
     public static Commit makeCommitWithoutInit(String msg) {
-        return makeCommit(msg, false);
+        return makeCommit(msg, false, null);
     }
 
     // make Commit with initialization
     public static Commit makeCommitWithInit(String msg) {
-        return makeCommit(msg, true);
+        return makeCommit(msg, true, null);
+    }
+
+    // make Commit with initialization
+    public static Commit makeCommitAfterMerge(String msg, String branchName) {
+        return makeCommit(msg, false, branchName);
     }
 
     // using in addCommand
@@ -448,7 +840,7 @@ public class Repository {
     public static boolean comparedCommitsAndWorking(String workingFileID) {
         // compare fileIDs
         // compare file ? NOT, because different content of file has different name in sha-1
-        for (Commit.Blob blob : getCurrentCommit().getBlobs()) {
+        for (Blob blob : getCurrentCommit().getBlobs()) {
             if (workingFileID.equals(blob.getCopiedFileID())) {
                 return true;
             }
@@ -461,7 +853,7 @@ public class Repository {
         System.out.println("===");
         System.out.println("commit " + commit.getCommitID());
         List<String> parentIDs = commit.getParentIDs();
-        if (parentIDs != null && parentIDs.size() == 2) {
+        if (parentIDs.size() == 2) {
             System.out.println("Merge: " + parentIDs.get(0).substring(0, 7) + " "
                     + parentIDs.get(1).substring(0, 7));
         }
@@ -472,23 +864,6 @@ public class Repository {
         System.out.println("Date: " + dateFormat.format(commit.getDate()));
         System.out.println(commit.getMessage());
         System.out.println();
-    }
-
-    // using in log command and global-log command
-    private static void printCommitLogNotNewline(Commit commit) {
-        System.out.println("===");
-        System.out.println("commit " + commit.getCommitID());
-        List<String> parentIDs = commit.getParentIDs();
-        if (parentIDs != null && parentIDs.size() == 2) {
-            System.out.println("Merge: " + parentIDs.get(0).substring(0, 7) + " "
-                    + parentIDs.get(1).substring(0, 7));
-        }
-        // how to get Pacific Standard Time in java?
-        // different during date and timestamp:
-        // i.e. Timestamp: 2022-09-25 20:52:21.425 diff. Date: Wed Dec 31 16:00:00 1969 -0800
-        SimpleDateFormat dateFormat = new SimpleDateFormat("E MMM dd HH:mm:ss yyyy Z");
-        System.out.println("Date: " + dateFormat.format(commit.getDate()));
-        System.out.println(commit.getMessage());
     }
 
     // using in status command
@@ -505,7 +880,7 @@ public class Repository {
         }
         System.out.println();
         System.out.println("=== Staged Files ===");
-        for (String stagingFileName : plainFilenamesIn(STAGING_FOLDER)) {
+        for (String stagingFileName : plainFilenamesIn(ADDITION_FOLDER)) {
             System.out.println(stagingFileName);
         }
         System.out.println();
@@ -519,29 +894,37 @@ public class Repository {
     }
 
     // using in commit command
-    // clean Staging
+    // clean Staging of addition and removed
     public static void cleanStaging() {
-        for (String fileName : plainFilenamesIn(STAGING_FOLDER)) {
-            unrestrictedDelete(join(STAGING_FOLDER, fileName));
+        for (String fileName : plainFilenamesIn(ADDITION_FOLDER)) {
+            unrestrictedDelete(join(ADDITION_FOLDER, fileName));
+        }
+        for (String fileName : plainFilenamesIn(REMOVED_FOLDER)) {
+            unrestrictedDelete(join(REMOVED_FOLDER, fileName));
+        }
+    }
+
+    public static void cleanWorking() {
+        for (String fileName : plainFilenamesIn(CWD)) {
+            unrestrictedDelete(join(CWD, fileName));
         }
     }
 
     // using in add command
     // save Staging
-    // todo: use fileName or fileID to save?
-    // 22.9.25, choose fileName, maybe get fileID lose name?
-    // saveObj, because we need create new file
-    public static void saveStagingFile(String fileName, String contents) {
-        saveContent(STAGING_FOLDER, fileName, contents);
+    // 22.9.25, choose fileName, maybe get fileID lose name
+    public static void saveAdditionFile(String fileName, String contents) {
+        saveContent(ADDITION_FOLDER, fileName, contents);
     }
 
-    // clean Removed
-    public static void cleanRemoved() {
-
-    }
     // save Removed
     public static void saveRemovedFile(String fileName, String contents) {
         saveContent(REMOVED_FOLDER, fileName, contents);
+    }
+
+    // save Working
+    public static void saveWorkingFile(String fileName, String contents) {
+        saveContent(CWD, fileName, contents);
     }
 
     /**
@@ -565,8 +948,8 @@ public class Repository {
         if (!BLOB_FOLDER.exists()){
             BLOB_FOLDER.mkdir();
         }
-        if (!STAGING_FOLDER.exists()){
-            STAGING_FOLDER.mkdir();
+        if (!ADDITION_FOLDER.exists()){
+            ADDITION_FOLDER.mkdir();
         }
         if (!REMOVED_FOLDER.exists()){
             REMOVED_FOLDER.mkdir();

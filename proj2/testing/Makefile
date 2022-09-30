@@ -25,7 +25,7 @@ TESTS = samples/*.in student_tests/*.in *.in
 
 # First, and therefore default, target.
 default:
-	$(RMAKE) -C .. 
+	$(RMAKE) -C ..
 	$(RMAKE) PYTHON=$(PYTHON) check
 
 check:

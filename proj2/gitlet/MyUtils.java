@@ -102,7 +102,7 @@ public class MyUtils {
         HashSet<File> files = new HashSet<>();
         for (String ID : IDList) {
             // store actual file by path(Utils.join)
-            files.add(join(STAGING_FOLDER, ID));
+            files.add(join(FOLDER, ID));
         }
         return files;
     }

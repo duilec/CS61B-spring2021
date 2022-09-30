@@ -33,7 +33,7 @@ public class Commit implements Serializable {
     /** The date of committing. */
     private Date date;
     /** The ids(hash codes) of blobs in this Commit. */
-    private List<String> blobIDs = new LinkedList<>();
+    private List<String> blobIDs;
     /** The ids(hash codes) of parent Commits, BUT at most two parents*/
     private List<String> parentIDs;
     /** The id(hash code) of this Commit. */
@@ -41,23 +41,122 @@ public class Commit implements Serializable {
     /** The name of copied files in blobs. */
     private List<String> copiedFileNames;
     /** The id(hash code)  of copied files in blobs. */
-    private List<String> copiedFileIDs = new LinkedList<>();
+    private List<String> copiedFileIDs;
+    /** the marked count in commit */
+    private int markedCount;
+    /** the distance in commit */
+    private int distance;
 
     public Commit(String message, Date date, List<String> parentIDs) {
         this.message = message;
         this.date = date;
         this.parentIDs = parentIDs;
-        this.copiedFileNames = plainFilenamesIn(STAGING_FOLDER);
-        HashSet<File> stagingFiles = getFiles(STAGING_FOLDER);
-        if (stagingFiles != null) {
-            for (File file : stagingFiles) {
+        this.copiedFileNames = new LinkedList<>();
+        this.blobIDs = new LinkedList<>();
+        this.copiedFileIDs = new LinkedList<>();
+        // get information(copied fileNames, copied fileIDs and blobIDs) from parent
+        getInfoFromParent();
+        // get information(copied fileNames, copied fileIDs and blobIDs) from staging folder
+        getInfoFromStaging();
+        this.markedCount = 0;
+        this.distance = 0;
+        this.CommitID = sha1(serialize(this));
+    }
+
+    // get information from parent
+    // only consider one parent ==> get(0)
+    private void getInfoFromParent() {
+        // 22.9.28, only consider one parent ==> get(0)
+        // get copied fileNames, copied fileIDs and blobIDs by parent
+        if (this.parentIDs.size() == 1) {
+            Commit parentCommit = readObject(join(COMMITS_FOLDER, this.parentIDs.get(0)), Commit.class);
+            this.copiedFileNames.addAll(parentCommit.getCopiedFileNames());
+            this.blobIDs.addAll(parentCommit.getBlobIDs());
+            this.copiedFileIDs.addAll(parentCommit.getCopiedFileIDs());
+        }
+    }
+
+    // get information from staging folder and removed folder
+    private void getInfoFromStaging() {
+        // consider addition folder!
+        // get copied fileNames, copied fileIDs and blobIDs by Addition folder
+        // todo: get filename to get id in folder
+        List<String> fileNames = plainFilenamesIn(ADDITION_FOLDER);
+        for (String fileName : fileNames) {
+            File file = join(ADDITION_FOLDER, fileName);
+            String fileID = getFileID(file);
+            // different filename and different fileID, we should add file from staging
+            if (!this.copiedFileNames.contains(fileName) && !this.copiedFileIDs.contains(fileID)) {
+                this.copiedFileNames.add(fileName);
+                this.copiedFileIDs.add(fileID);
+                this.blobIDs.add(makeBlob(file).getBlobID());
+                // same filename but different fileID, we should use the file from staging to instead of file from parent
+                // i.e. deleted file(blobID, copiedFileID) from parent then, add the file from staging
+            } else if (this.copiedFileNames.contains(fileName) && !this.copiedFileIDs.contains(fileID)) {
+                // deleted file(blobID, copiedFileID) from parent
+                for (String blobID : this.blobIDs) {
+                    Blob blob = readObject(join(BLOB_FOLDER, getDirID(blobID), blobID), Blob.class);
+                    if (blob.getCopiedFileName().equals(fileName)) {
+                        this.copiedFileIDs.remove(blob.getCopiedFileID());
+                        this.blobIDs.remove(blob.getBlobID());
+                        break;
+                    }
+                }
+                // add the file from staging
+                this.copiedFileIDs.add(fileID);
                 this.blobIDs.add(makeBlob(file).getBlobID());
             }
-            for (File file : stagingFiles) {
-                this.copiedFileIDs.add(getFileID(file));
+            // same filename and same fileID, do nothing
+        }
+        // consider removed folder!
+        // remove fileNames, copied fileIDs and blobIDs by Removed folder
+        // todo: get filename to get id in folder
+        fileNames = plainFilenamesIn(REMOVED_FOLDER);
+        for (String fileName : fileNames) {
+            File file = join(REMOVED_FOLDER, fileName);
+            String fileID = getFileID(file);
+            // same filename and same fileID, remove it from new commit
+            if (this.copiedFileNames.contains(fileName) && this.copiedFileIDs.contains(fileID)) {
+                this.copiedFileNames.remove(fileName);
+                this.copiedFileIDs.remove(fileID);
+                for (String blobID : this.blobIDs) {
+                    Blob blob = readObject(join(BLOB_FOLDER, getDirID(blobID), blobID), Blob.class);
+                    if (fileID.equals(blob.getBlobID())) {
+                        this.blobIDs.remove(blobID);
+                    }
+                }
             }
         }
-        this.CommitID = sha1(serialize(this));
+    }
+
+    // reset the marked count
+    public void resetMarkCount() {
+        this.markedCount = 0;
+    }
+
+    // updated the marked count
+    public void updatedMarkCount() {
+        this.markedCount += 1;
+    }
+
+    // get the marked count
+    public int getMarkCount() {
+        return this.markedCount;
+    }
+
+    // reset the distance
+    public void resetDistance() {
+        this.distance = 0;
+    }
+
+    // updated the distance
+    public void updatedDistance(int distance) {
+        this.distance += distance;
+    }
+
+    // get the distance
+    public int getDistance() {
+        return this.distance;
     }
 
     // get currentCommitID
@@ -94,6 +193,21 @@ public class Commit implements Serializable {
         return this.message;
     }
 
+    // set blobIDs
+    public void setBlobIDs(List<String> blobIDs) {
+        this.blobIDs = blobIDs;
+    }
+
+    // set copiedFileNames
+    public void setCopiedFileNames(List<String> copiedFileNames) {
+        this.copiedFileNames = copiedFileNames;
+    }
+
+    // set copiedFileIDs
+    public void setCopiedFileIDs(List<String> copiedFileIDs) {
+        this.copiedFileIDs = copiedFileIDs;
+    }
+
     public Blob makeBlob(File stagingFile) {
         Blob blob = new Blob(stagingFile);
         String blobID = blob.getBlobID();
@@ -109,45 +223,5 @@ public class Commit implements Serializable {
             blobs.add(blob);
         }
         return blobs;
-    }
-
-    // TODO: using Serializable?
-    public class Blob implements Serializable {
-        /** The id(hash code) of blob. */
-        private String blobID;
-        /** The copied file of blob. */
-        private File copiedFile;
-        /** The copied file id(hash code) of blob. */
-        private String copiedFileID;
-        /** The copied file content of blob. */
-        private String copiedFileContent;
-        /** The copied file name of blob. */
-        private String copiedFileName;
-
-        // each blob has one file
-        public Blob(File stagingFile) {
-            // copiedFile just a soft link
-            this.copiedFile = stagingFile;
-            this.copiedFileID = getFileID(stagingFile);
-            this.blobID = sha1(serialize(this));
-            this.copiedFileName = stagingFile.getName();
-            this.copiedFileContent = readContentsAsString(stagingFile);
-        }
-
-        public String getBlobID() {
-            return this.blobID;
-        }
-
-        public String getCopiedFileName() {
-            return this.copiedFileName;
-        }
-
-        public String getCopiedFileContent() {
-            return this.copiedFileContent;
-        }
-
-        public String getCopiedFileID() {
-            return this.copiedFileID;
-        }
     }
 }

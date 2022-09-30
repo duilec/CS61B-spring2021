@@ -1,5 +1,4 @@
 # Check that we can check out a previous version.
-I definitions.inc
 > init
 <<<
 + wug.txt wug.txt
@@ -13,18 +12,24 @@ I definitions.inc
 > commit "version 2 of wug.txt"
 <<<
 = wug.txt notwug.txt
-# Each ${COMMIT_HEAD} captures its commit UID.
+# Each ${HEADER} captures its commit UID.
+D UID "[a-f0-9]+"
+D HEADER "commit (${UID})"
+D DATE "Date: \w\w\w \w\w\w \d+ \d\d:\d\d:\d\d \d\d\d\d [-+]\d\d\d\d"
 > log
 ===
-${COMMIT_HEAD}
+${HEADER}
+${DATE}
 version 2 of wug.txt
 
 ===
-${COMMIT_HEAD}
+${HEADER}
+${DATE}
 version 1 of wug.txt
 
 ===
-${COMMIT_HEAD}
+${HEADER}
+${DATE}
 initial commit
 
 <<<*

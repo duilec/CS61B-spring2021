@@ -89,7 +89,18 @@ public class Main {
                 validateInitAndOperands("reset", args, 2);
                 Repository.resetCommand(args[1]);
                 break;
-
+            case "branch":
+                validateInitAndOperands("branch", args, 2);
+                Repository.branchCommand(args[1]);
+                break;
+            case "rm-branch":
+                validateInitAndOperands("rm-branch", args, 2);
+                Repository.rmBranchCommand(args[1]);
+                break;
+            case "merge":
+                validateInitAndOperands("merge", args, 2);
+                Repository.mergeCommand(args[1]);
+                break;
             // If a user inputs a command that doesn’t exist,
             // print the message No command with that name exists. and exit.
             default:
@@ -115,11 +126,7 @@ public class Main {
                 matchFileName(args[1]);
                 break;
             case "commit":
-                if (args[1].equals("")) {
-                    printErrorWithExit("Please enter a commit message.");
-                } else {
-                    matchMessage(args[1]);
-                }
+                matchMessage(args[1]);
                 break;
             case "rm":
                 matchFileName(args[1]);
@@ -144,13 +151,25 @@ public class Main {
                     matchFileName(args[3]);
                 }
                 break;
+            case "reset":
+                matchCommitID(args[1]);
+                break;
+            case "branch":
+                matchBranchName(args[1]);
+                break;
+            case "rm-branch":
+                matchBranchName(args[1]);
+                break;
+            case "merge":
+                matchCommitID(args[1]);
+                break;
         }
     }
 
     public static void validateInitAndOperands(String cmd, String[] args, int n) {
         // validate init
         if (!Repository.validateDirAndFolder()) {
-            printError("Not in an initialized Gitlet directory.");
+            printErrorWithExit("Not in an initialized Gitlet directory.");
         }
         // validate operands
         validateOperands(cmd, args, n);
@@ -189,7 +208,7 @@ public class Main {
         matchMessage(branchName);
     }
 
-    // "Incorrect operands." with Regular Expression of matching message
+    // "Incorrect operands." with Regular Expression of matching commitID
     private static void matchCommitID(String message) {
         // commit id pattern
         String commitIDPattern = "[\\w\\d]+";

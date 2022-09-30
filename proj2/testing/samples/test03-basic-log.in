@@ -1,5 +1,4 @@
 # Set up a simple chain of commits and check their log.
-I definitions.inc
 > init
 <<<
 + wug.txt wug.txt
@@ -7,13 +6,17 @@ I definitions.inc
 <<<
 > commit "added wug"
 <<<
+D HEADER "commit [a-f0-9]+"
+D DATE "Date: \w\w\w \w\w\w \d+ \d\d:\d\d:\d\d \d\d\d\d [-+]\d\d\d\d"
 > log
 ===
-${COMMIT_HEAD}
+${HEADER}
+${DATE}
 added wug
 
 ===
-${COMMIT_HEAD}
+${HEADER}
+${DATE}
 initial commit
 
 <<<*

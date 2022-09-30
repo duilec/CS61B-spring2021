@@ -23,7 +23,6 @@ Usage: python3 runner.py OPTIONS TEST.in ...
 """
 
 USAGE = SHORT_USAGE + """\
-
 For each TEST.in, change to an empty directory, and execute the instructions
 in TEST.in.  Before executing an instruction, first replace any occurrence
 of ${VAR} with the current definition of VAR (see the D command below).
@@ -31,9 +30,7 @@ Replace any occurrence of ${N} for non-negative decimal numeral N with
 the value of the Nth captured group in the last ">" command's expected
 output lines.  Undefined if the last ">" command did not end in "<<<*",
 or did not have the indicated group. N=0 indicates the entire matched string.
-
 The instructions each have one of the following forms:
-
    # ...  A comment, producing no effect.
    I FILE Include.  Replace this statement with the contents of FILE,
           interpreted relative to the directory containing the .in file.
@@ -55,7 +52,7 @@ The instructions each have one of the following forms:
           Run gitlet.Main with COMMAND ARGUMENTS as its parameters.  Compare
           its output with LINE1, LINE2, etc., reporting an error if there is
           "sufficient" discrepency.  The <<< delimiter may be followed by
-          an asterisk (*), in which case, the preceding lines are treated as 
+          an asterisk (*), in which case, the preceding lines are treated as
           Python regular expressions and matched accordingly. The directory
           or JAR file containing the gitlet.Main program is assumed to be
           in directory DIR specifed by --progdir (default is ..).
@@ -72,13 +69,11 @@ The instructions each have one of the following forms:
           Defines the variable VAR to have the literal value VALUE.  VALUE is
           taken to be a raw Python string (as in r"VALUE").  Substitutions are
           first applied to VALUE.
-
 For each TEST.in, reports at most one error.  Without the --show option,
 simply indicates tests passed and failed.  If N is postive, also prints details
 of the first N failing tests. With --show=all, shows details of all failing
 tests.  With --keep, keeps the directories created for the tests (with names
 TEST.dir).
-
 When finished, reports number of tests passed and failed, and the number of
 faulty TEST.in files."""
 
@@ -86,26 +81,21 @@ faulty TEST.in files."""
 DIRECTORY_LAYOUT_ERROR = """\
 Your {} folder is not where we expected it. Please ensure that your directory
 structure matches the following:
-
 sp21-s***
   ├── library-sp21
-  │    └── ...
+  │    └── ...
   ├── proj2
-  │   ├── gitlet
-  │   ├── testing <==== This should be your CWD
-  │   │    ├── runner.py
-  │   │    └── ...
-  │   └── ...
+  │   ├── gitlet
+  │   ├── testing <==== This should be your CWD
+  │   │    ├── runner.py
+  │   │    └── ...
+  │   └── ...
   └── ...
-
 Note your CWD must be `sp21-s***/proj2/testing`
-
 Also check that your REPO_DIR environment variable is the path to your
 `sp21-s***` directory. You can check this by running the command:
-
     $ echo REPO_DIR
     /Users/omarkhan902/cs61b/61b_sp21_stuff/sp21-s3
-
 That's what mine looks like. Go back to lab1 if you are still having issues"""
 
 JAVA_COMMAND = "java"
