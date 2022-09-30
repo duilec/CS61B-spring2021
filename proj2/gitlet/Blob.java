@@ -9,8 +9,6 @@ import static gitlet.Utils.*;
 public class Blob implements Serializable {
     /** The id(hash code) of blob. */
     private String blobID;
-    /** The copied file of blob. */
-    private File copiedFile;
     /** The copied file id(hash code) of blob. */
     private String copiedFileID;
     /** The copied file content of blob. */
@@ -21,7 +19,6 @@ public class Blob implements Serializable {
     // each blob has one file
     public Blob(File stagingFile) {
         // copiedFile just a soft link
-        this.copiedFile = stagingFile;
         this.copiedFileID = getFileID(stagingFile);
         this.blobID = sha1(serialize(this));
         this.copiedFileName = stagingFile.getName();
@@ -44,3 +41,4 @@ public class Blob implements Serializable {
         return this.copiedFileID;
     }
 }
+
