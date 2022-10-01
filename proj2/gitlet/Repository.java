@@ -106,9 +106,6 @@ public class Repository {
     }
 
     private static void commitCommandHelper(String message, boolean afterMerge, String branchName) {
-        if (message.equals("")) {
-            printErrorWithExit("Please enter a commit message.");
-        }
         if (plainFilenamesIn(ADDITION_FOLDER).size() == 0 && plainFilenamesIn(REMOVED_FOLDER).size() == 0) {
             // todo: delete a file in commit constructor or in commit command
             // The rm command will remove such files, as well as staging them for removal,
@@ -278,7 +275,7 @@ public class Repository {
     }
 
     private static void checkout(Commit commit, String fileName) {
-        // finding filename in currentCommit
+        // finding filename in commit
         for (Blob blob : commit.getBlobs()) {
             // if success about finding filename in commit
             if (fileName.equals(blob.getCopiedFileName())) {
@@ -477,8 +474,10 @@ public class Repository {
         if (splitCommitID.equals(extractBranchThenGetCommitID(branchName))) {
             printErrorWithExit("Given branch is an ancestor of the current branch.");
         }
-        // If the split point is the current branch, print error and exit
+        // If the split point is the current branch, then the effect is to check out the given branch,
+        // and the operation ends after printing the message
         if (splitCommitID.equals(getCurrentCommit().getCommitID())){
+            checkoutWithBranchName(branchName);
             printErrorWithExit("Current branch fast-forwarded.");
         }
         // get the target branch commit AS "other"
@@ -525,12 +524,11 @@ public class Repository {
         branchCommit.updatedMarkCount();
         branchCommit.updatedDistance(distance);
         saveObj(COMMITS_FOLDER, branchCommit.getCommitID(), branchCommit);
-        // get first parent commit, then mark it
+        // iterate first/second parent commit, we should mark it
         // note: distance need to plus 1
-        if (branchCommit.getParentIDs().size() > 0) {
-            String firstParentID = branchCommit.getParentIDs().get(0);
-            branchCommit = readObject(join(COMMITS_FOLDER, firstParentID), Commit.class);
-            distance += 1;
+        distance += 1;
+        for (String parentID : branchCommit.getParentIDs()) {
+            branchCommit = readObject(join(COMMITS_FOLDER, parentID), Commit.class);
             markBranch(branchCommit, distance);
         }
     }
@@ -542,6 +540,7 @@ public class Repository {
         // get all filenames and file ids
         // using "set" that NOT duplicate elements
         Set<String> allFileNames = getAllFileNames(split, head, other);
+        Set<String> allFileIDs = getAllFileNames(split, head, other);
         // using 8 rules to store some files to cwd, addition folder and removed folder
         rulesDealFiles(split, head, other, allFileNames);
     }
@@ -550,128 +549,106 @@ public class Repository {
         List<String> fileNamesInSplit = split.getCopiedFileNames();
         List<String> fileNamesInHead = head.getCopiedFileNames();
         List<String> fileNamesInOther = other.getCopiedFileNames();
-        List<String> fileIDsInHead = head.getCopiedFileIDs();
-        List<String> fileIDsInOther = other.getCopiedFileIDs();
-        // if head not modified "isHeadModified" keep "false"
-        // else set "isHeadModified" to "true", "isOtherModified" do too
-        boolean isHeadModified = false;
-        boolean isOtherModified = false;
+        // using rules to deal files
         for (String fileName : allFileNames) {
+            String fileIDInHead = null;
+            String fileIDInOther = null;
+            String fileIDInSplit = null;
+            Blob headBlob = null;
+            Blob otherBlob = null;
+            // get head blob, file id and other blob, file id
+            for (Blob blob : head.getBlobs()) {
+                if (blob.getCopiedFileName().equals(fileName)) {
+                    headBlob = blob;
+                    fileIDInHead = blob.getCopiedFileID();
+                    break;
+                }
+            }
+            for (Blob blob : other.getBlobs()) {
+                if (blob.getCopiedFileName().equals(fileName)) {
+                    otherBlob = blob;
+                    fileIDInOther = blob.getCopiedFileID();
+                    break;
+                }
+            }
+            for (Blob blob : split.getBlobs()) {
+                if (blob.getCopiedFileName().equals(fileName)) {
+                    fileIDInSplit = blob.getCopiedFileID();
+                    break;
+                }
+            }
+            // if head not modified "isHeadModified" keep "false"(i.e.head has special fileID)
+            // else set "isHeadModified" to "true"(i.e.head NOT special fileID), "isOtherModified" do too
+            boolean isHeadModified = (fileIDInHead != null) && (!fileIDInHead.equals(fileIDInSplit));
+            boolean isOtherModified = (fileIDInOther != null) && (!fileIDInOther.equals(fileIDInSplit));
             // split, head and other contain a file with same filename
             if (fileNamesInSplit.contains(fileName) && fileNamesInHead.contains(fileName) && fileNamesInOther.contains(fileName)) {
-                // get fileID in split
-                String fileID = null;
-                for (Blob blob : split.getBlobs()) {
-                    if (fileName.equals(blob.getCopiedFileName())) {
-                        fileID = blob.getCopiedFileID();
-                        break;
-                    }
-                }
-                // if head not modified "isHeadModified" keep "false"(i.e.head has special fileID)
-                // else set "isHeadModified" to "true"(i.e.head NOT special fileID), "isOtherModified" do too
-                isHeadModified = !fileIDsInHead.contains(fileID);
-                isOtherModified = !fileIDsInOther.contains(fileID);
                 // 1. modified in other but not head => file from other to staged for addition and put it to cwd
                 if (isOtherModified && !isHeadModified) {
-                    for (Blob blob : other.getBlobs()) {
-                        if (blob.getCopiedFileName().equals(fileName)) {
-                            saveWorkingFile(fileName, blob.getCopiedFileContent());
-                            saveAdditionFile(fileName, blob.getCopiedFileContent());
-                            break;
-                        }
-                    }
+                    saveWorkingFile(fileName, otherBlob.getCopiedFileContent());
+                    saveAdditionFile(fileName, otherBlob.getCopiedFileContent());
+                    continue;
                 }
                 // 2. modified in head but not other => file from head to staged for addition and put it to cwd
                 if (isHeadModified && !isOtherModified) {
-                    for (Blob blob : head.getBlobs()) {
-                        if (blob.getCopiedFileName().equals(fileName)) {
-                            saveWorkingFile(fileName, blob.getCopiedFileContent());
-                            saveAdditionFile(fileName, blob.getCopiedFileContent());
-                            break;
-                        }
-                    }
-                }
-                //  modified in head and other in same/different way
-                if (isOtherModified && isHeadModified) {
-                    String fileIDInHead = null;
-                    String fileIDInOther = null;
-                    Blob headBlob = null;
-                    Blob otherBlob = null;
-                    // get head blob, file id and other blob, file id
-                    for (Blob blob : head.getBlobs()) {
-                        if (blob.getCopiedFileName().equals(fileName)) {
-                            headBlob = blob;
-                            fileIDInHead = blob.getCopiedFileID();
-                            break;
-                        }
-                    }
-                    for (Blob blob : other.getBlobs()) {
-                        if (blob.getCopiedFileName().equals(fileName)) {
-                            otherBlob = blob;
-                            fileIDInOther = blob.getCopiedFileID();
-                            break;
-                        }
-                    }
-                    // 3. modified in head and other in same way => file from head/other to staged for addition and put it to cwd
-                    // a filename in cwd but not in split, head and other, we don't care about it
-                    if (fileIDInHead.equals(fileIDInOther)) {
-                        saveWorkingFile(fileName, headBlob.getCopiedFileContent());
-                        saveAdditionFile(fileName, headBlob.getCopiedFileContent());
-                    // 4. modified in head and other in different way => store conflict file to cwd and addition folder
-                    } else {
-                        String conflictContents = makeConflictContents(headBlob.getCopiedFileContent(), otherBlob.getCopiedFileContent());
-                        saveWorkingFile(fileName, conflictContents);
-                        saveAdditionFile(fileName, conflictContents);
-                        printError("Encountered a merge conflict.");
-                    }
-                    break;
+                    saveWorkingFile(fileName, headBlob.getCopiedFileContent());
+                    saveAdditionFile(fileName, headBlob.getCopiedFileContent());
+                    continue;
                 }
             }
             // split and other NOT contain a file with same filename but head contain
             // 5. not in split nor other but in head => file from head to staged for addition
             if (!fileNamesInSplit.contains(fileName) && !fileNamesInOther.contains(fileName) && fileNamesInHead.contains(fileName)) {
-                for (Blob blob : head.getBlobs()) {
-                    if (blob.getCopiedFileName().equals(fileName)) {
-                        saveWorkingFile(fileName, blob.getCopiedFileContent());
-                        saveAdditionFile(fileName, blob.getCopiedFileContent());
-                        break;
-                    }
-                }
+                saveWorkingFile(fileName, headBlob.getCopiedFileContent());
+                saveAdditionFile(fileName, headBlob.getCopiedFileContent());
+                continue;
             }
             // split and head NOT contain a file with same filename but other contain
             // 6. not in split nor head but in other => file from other to staged for addition
             if (!fileNamesInSplit.contains(fileName) && !fileNamesInHead.contains(fileName) && fileNamesInOther.contains(fileName)) {
-                for (Blob blob : other.getBlobs()) {
-                    if (blob.getCopiedFileName().equals(fileName)) {
-                        saveWorkingFile(fileName, blob.getCopiedFileContent());
-                        saveAdditionFile(fileName, blob.getCopiedFileContent());
-                        break;
-                    }
-                }
+                saveWorkingFile(fileName, otherBlob.getCopiedFileContent());
+                saveAdditionFile(fileName, otherBlob.getCopiedFileContent());
+                continue;
             }
-            // 7. unmodified in head but not present in other => file from head to staged for removed
+            // 7a. unmodified in head but not present in other => file from head to staged for removed
+            // 7b. modified in head but not present in other => conflict
             if (fileNamesInSplit.contains(fileName) && fileNamesInHead.contains(fileName) && !fileNamesInOther.contains(fileName)) {
-                for (Blob blob : head.getBlobs()) {
-                    if (blob.getCopiedFileName().equals(fileName)) {
-                        saveRemovedFile(fileName, blob.getCopiedFileContent());
-                        // delete it in working
-                        if (hasFileNameInCWD(fileName)) {
-                            restrictedDelete(join(CWD, fileName));
-                        }
-                        break;
+                if (!isHeadModified) {
+                    saveRemovedFile(fileName, headBlob.getCopiedFileContent());
+                    // delete it in working
+                    if (hasFileNameInCWD(fileName)) {
+                        restrictedDelete(join(CWD, fileName));
                     }
+                } else {
+                    makeConflictFile(fileName, headBlob.getCopiedFileContent(), "");
                 }
+                continue;
             }
-            // 8. unmodified in other but not present in head => file from other to staged for removed
+            // 8a. unmodified in other but not present in head => file from other to staged for removed
+            // 8b. modified in other but not present in head => conflict
             if (fileNamesInSplit.contains(fileName) && fileNamesInOther.contains(fileName) && !fileNamesInHead.contains(fileName)) {
-                for (Blob blob : other.getBlobs()) {
-                    if (blob.getCopiedFileName().equals(fileName)) {
-                        saveRemovedFile(fileName, blob.getCopiedFileContent());
-                        // TODO: MAYBE ERROR delete it in working
-                        if (hasFileNameInCWD(fileName)) {
-                            restrictedDelete(join(CWD, fileName));
-                        }
-                        break;
+                if (!isOtherModified) {
+                    saveRemovedFile(fileName, otherBlob.getCopiedFileContent());
+                    // delete it in working
+                    if (hasFileNameInCWD(fileName)) {
+                        restrictedDelete(join(CWD, fileName));
+                    }
+                } else {
+                    makeConflictFile(fileName, "", otherBlob.getCopiedFileContent());
+                }
+                continue;
+            }
+            // conflict deal
+            if (fileNamesInOther.contains(fileName) && fileNamesInHead.contains(fileName)) {
+                //  modified in head and other in same/different way
+                if (isOtherModified && isHeadModified) {
+                    // 3. modified in head and other in same way => file from head/other to staged for addition and put it to cwd
+                    if (fileIDInHead.equals(fileIDInOther)) {
+                        saveWorkingFile(fileName, headBlob.getCopiedFileContent());
+                        saveAdditionFile(fileName, headBlob.getCopiedFileContent());
+                    // 4. modified in head and other in different way => store conflict file to cwd and addition folder
+                    } else {
+                        makeConflictFile(fileName, headBlob.getCopiedFileContent(), otherBlob.getCopiedFileContent());
                     }
                 }
             }
@@ -693,7 +670,22 @@ public class Repository {
         return fileNames;
     }
 
-    private static String makeConflictContents(String fileContentsFromHead, String fileContentsFromOther) {
+    // get all filenames
+    private static Set<String> getAllFileIDs(Commit split, Commit head, Commit other) {
+        Set<String> FileIDs = new HashSet<>();
+        for (String FileID : split.getCopiedFileNames()) {
+            FileIDs.add(FileID);
+        }
+        for (String FileID : head.getCopiedFileNames()) {
+            FileIDs.add(FileID);
+        }
+        for (String FileID : other.getCopiedFileNames()) {
+            FileIDs.add(FileID);
+        }
+        return FileIDs;
+    }
+
+    private static void makeConflictFile(String fileName, String fileContentsFromHead, String fileContentsFromOther) {
         // you can't use set String contents = null
         // you can't use method of concat()
         String contents = "<<<<<<< HEAD" + "\n"
@@ -701,7 +693,9 @@ public class Repository {
                           + "=======" + "\n"
                           + fileContentsFromOther
                           +">>>>>>>" + "\n";
-        return contents;
+        saveWorkingFile(fileName, contents);
+        saveAdditionFile(fileName, contents);
+        printError("Encountered a merge conflict.");
     }
 
     // check the same file not exists in folder

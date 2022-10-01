@@ -126,6 +126,9 @@ public class Main {
                 matchFileName(args[1]);
                 break;
             case "commit":
+                if (args[1].equals("")) {
+                    printErrorWithExit("Please enter a commit message.");
+                }
                 matchMessage(args[1]);
                 break;
             case "rm":
