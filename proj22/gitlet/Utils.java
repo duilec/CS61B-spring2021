@@ -245,12 +245,19 @@ class Utils {
         System.out.println();
     }
 
-    // print message of error
+    // All error message end with a period
+    // Note: You should always supply the argument 0 to the System.exit(0)command.
+    public static void exitWithError(String msg, Object... args) {
+        if (msg != null && !msg.equals("")) {
+            message(msg, args);
+        }
+        System.exit(0);
+    }
+
     public static void printError(String msg) {
         System.out.println(msg);
     }
 
-    // print message of error, then exit programme
     public static void printErrorWithExit(String msg) {
         printError(msg);
         System.exit(0);

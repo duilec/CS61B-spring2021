@@ -19,20 +19,15 @@ public class Main {
      *
      * commit, checkout...
      *
+     * ? All persistent data should be stored in a ".capers"
+     * ? directory in the current working directory.
+     *
      * *YOU SHOULD NOT CREATE THESE MANUALLY,
      *  YOUR PROGRAM SHOULD CREATE THESE FOLDERS/FILES*
      *
      * .gitlet/ -- top level folder for all persistent data in proj2 folder
-     *    - commits/ -- folder containing all of the persistent object for commits
-     *    - blobs/ -- folder containing all of the persistent folder for folder of blobs
-     *          - 00/ -- folders containing all of the persistent object for blobs
-     *          - 01/
-     *          - ../(two characters of hex)
-     *          - ff/
-     *    - addition/ -- folder containing all of the staging file for addition
-     *    - removed/ -- folder containing all of the staging file for removed
-     *    - branch/ -- folder containing all of the persistent object for branch
-     *    - HEAD -- file containing the persistent object for head
+     *    - commits/ -- folder containing all of the persistent data for commits
+     *    - blobs/ -- folder containing all of the persistent data for commits
      *
      * @param args arguments from the command line
      */
@@ -113,16 +108,6 @@ public class Main {
         }
     }
 
-    // validate init and operands
-    public static void validateInitAndOperands(String cmd, String[] args, int n) {
-        // validate init
-        if (!MyUtils.validateDirAndFolder()) {
-            printErrorWithExit("Not in an initialized Gitlet directory.");
-        }
-        // validate operands
-        validateOperands(cmd, args, n);
-    }
-
     /**
      * If a user inputs a command with the wrong number or format of operands,
      * print the message Incorrect operands. and exit.
@@ -184,7 +169,15 @@ public class Main {
         }
     }
 
-    /** "Incorrect operands." with Regular Expression of xxx */
+    public static void validateInitAndOperands(String cmd, String[] args, int n) {
+        // validate init
+        if (!Repository.validateDirAndFolder()) {
+            printErrorWithExit("Not in an initialized Gitlet directory.");
+        }
+        // validate operands
+        validateOperands(cmd, args, n);
+    }
+
     // "Incorrect operands." with Regular Expression of matching filename
     private static void matchFileName(String fileName) {
         // filename pattern

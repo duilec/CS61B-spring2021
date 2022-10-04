@@ -1,5 +1,7 @@
 package gitlet;
 
+// TODO: any imports you need here
+
 import java.io.File;
 import java.io.Serializable;
 import java.util.*;
@@ -58,15 +60,6 @@ public class Commit implements Serializable {
         this.CommitID = sha1(serialize(this));
     }
 
-    /** using in constructor of Commit */
-    // make blob
-    public Blob makeBlob(File stagingFile) {
-        Blob blob = new Blob(stagingFile);
-        String blobID = blob.getBlobID();
-        saveDirAndFileInBlobs(blob, BLOB_FOLDER, blobID);
-        return blob;
-    }
-
     // get information from parent
     // only consider one parent ==> get(0)
     private void getInfoFromParent() {
@@ -82,9 +75,11 @@ public class Commit implements Serializable {
 
     // get information from staging folder and removed folder
     private void getInfoFromStaging() {
-        // 1. consider addition folder!
+        // consider addition folder!
         // get copied fileNames, copied fileIDs and blobIDs by Addition folder
-        for (String fileName : plainFilenamesIn(ADDITION_FOLDER)) {
+        // todo: get filename to get id in folder
+        List<String> fileNames = plainFilenamesIn(ADDITION_FOLDER);
+        for (String fileName : fileNames) {
             File file = join(ADDITION_FOLDER, fileName);
             String fileID = getFileID(file);
             // different filename and different fileID, we should add file from staging
@@ -110,31 +105,27 @@ public class Commit implements Serializable {
             }
             // same filename and same fileID, do nothing
         }
-        // 2. consider removed folder!
+        // consider removed folder!
         // remove fileNames, copied fileIDs and blobIDs by Removed folder
-        List<String> removedBlobIDs = new LinkedList<>();
-        for (String fileName : plainFilenamesIn(REMOVED_FOLDER)) {
+        // todo: get filename to get id in folder
+        fileNames = plainFilenamesIn(REMOVED_FOLDER);
+        for (String fileName : fileNames) {
             File file = join(REMOVED_FOLDER, fileName);
             String fileID = getFileID(file);
             // same filename and same fileID, remove it from new commit
             if (this.copiedFileNames.contains(fileName) && this.copiedFileIDs.contains(fileID)) {
                 this.copiedFileNames.remove(fileName);
                 this.copiedFileIDs.remove(fileID);
-                // note: you can't delete blobID one by one in this.blobIDs,
-                // because you can't change iterator of blobIDs when using iterator of blobIDs
                 for (String blobID : this.blobIDs) {
                     Blob blob = readObject(join(BLOB_FOLDER, getDirID(blobID), blobID), Blob.class);
-                    if (fileID.equals(blob.getCopiedFileID())) {
-                        removedBlobIDs.add(blobID);
-                        break;
+                    if (fileID.equals(blob.getBlobID())) {
+                        this.blobIDs.remove(blobID);
                     }
                 }
             }
         }
-        this.blobIDs.removeAll(removedBlobIDs);
     }
 
-    /** using in markBranch() */
     // reset the marked count
     public void resetMarkCount() {
         this.markedCount = 0;
@@ -170,7 +161,6 @@ public class Commit implements Serializable {
         return this.CommitID;
     }
 
-    /** get variable from commit */
     //get parentIDs
     public List<String> getParentIDs() {
         return this.parentIDs;
@@ -198,6 +188,28 @@ public class Commit implements Serializable {
     // get message
     public String getMessage() {
         return this.message;
+    }
+
+    // set blobIDs
+    public void setBlobIDs(List<String> blobIDs) {
+        this.blobIDs = blobIDs;
+    }
+
+    // set copiedFileNames
+    public void setCopiedFileNames(List<String> copiedFileNames) {
+        this.copiedFileNames = copiedFileNames;
+    }
+
+    // set copiedFileIDs
+    public void setCopiedFileIDs(List<String> copiedFileIDs) {
+        this.copiedFileIDs = copiedFileIDs;
+    }
+
+    public Blob makeBlob(File stagingFile) {
+        Blob blob = new Blob(stagingFile);
+        String blobID = blob.getBlobID();
+        saveDirAndFileInBlobs(blob, BLOB_FOLDER, blobID);
+        return blob;
     }
 
     // get blobs AS HashSet of blobs

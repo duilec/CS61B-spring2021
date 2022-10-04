@@ -26,7 +26,6 @@ public class Pointer implements Serializable {
         }
     }
 
-    /** save branch/head */
     // save branch by branchName
     public void saveBranchFile() {
         saveObj(BRANCH_FOLDER, this.branchName, this);
@@ -37,7 +36,6 @@ public class Pointer implements Serializable {
         saveObj(GITLET_DIR, headName, this);
     }
 
-    /** get variable from commit */
     // get ActiveBranchName in HEAD
     public String getActiveBranchName() {
         return this.activeBranchName;
@@ -51,5 +49,22 @@ public class Pointer implements Serializable {
     // get CommitID in branch
     public String getCommitID() {
         return this.commitID;
+    }
+
+    // get branchName in branch
+    public String getBranchName() {
+        return this.branchName;
+    }
+
+
+    // todo: only use saveHEADFile() and getActiveBranchName()???
+    // change branch in HEAD
+    public void changeActiveBranchNameInHEAD(String activeBranchName) {
+        this.activeBranchName = activeBranchName;
+    }
+
+    // change commit in branch
+    public void changeCommitIDInBranch(String commitID) {
+        this.commitID = commitID;
     }
 }

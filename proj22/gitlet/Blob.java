@@ -25,7 +25,6 @@ public class Blob implements Serializable {
         this.copiedFileContent = readContentsAsString(stagingFile);
     }
 
-    /** get variable from blob */
     public String getBlobID() {
         return this.blobID;
     }
