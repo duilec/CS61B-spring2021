@@ -25,12 +25,14 @@ This is my solution about homework, lab and project in CS61B spring2021
   - [x] lab7
   - [x] lab8
   - [x] [lab11](https://github.com/duilec/CS61B-spring2018/tree/main/lab11/lab11/graphs) (graph exercises in 18sp)
+  - [ ] lab12
   - [ ] ...
 - project
   - [x] proj0
   - [x] proj1
   - [x] proj1EC
-  - [ ] proj2
+  - [x] proj2
+  - [ ] proj2EC(only compete `status`)
   - [ ] proj3
 
 ## helper link
@@ -221,6 +223,8 @@ I choose classic approach of `LinkedList`  to implement to `MyHashMap`
   ```
 
 ### lab11
+
+time: *2022.09.16 ~ 2022.09.17*
 
 this is some exercises about graph
 
