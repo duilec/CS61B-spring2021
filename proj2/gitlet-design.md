@@ -160,12 +160,12 @@ CWD                             <==== Whatever the current working directory is.
     │   │   ├── ...
     │   │   └── blobN
     │   ├── blobDir2
-    │   │   ├── blob1                
+    │   │   ├── blob1
     │   │   ├── ...
     │   │   └── blobN
     │   ├── ...
     │   └── blobDirN
-    │       ├── blob1                
+    │       ├── blob1
     │       ├── ...
     │       └── blobN
     ├── branch                   <==== All the dir of blobs are stored in this directory
