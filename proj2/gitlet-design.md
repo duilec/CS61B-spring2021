@@ -143,47 +143,47 @@ Describe your strategy for ensuring that you don’t lose the state of your prog
 
 The directory structure looks like this:
 
-**fix directory structure look 22.10.07**
+**fix directory structure look(don't use `space` but use `Tab`) 22.10.07**
 
 ```java
 CWD                             <==== Whatever the current working directory is.
-└── .gitlet											<==== All persistant data is stored within here
-    ├── HEAD										<==== A single Pointer(HEAD) instance stored to a file
-    ├── addition								<==== All the added file are stored in this directory
-  	│		├── file1               	<==== A single file
-    │		├── file2
+└── .gitlet                     <==== All persistant data is stored within here
+    ├── HEAD                    <==== A single Pointer(HEAD) instance stored to a file
+    ├── addition                <==== All the added file are stored in this directory
+  	│   ├── file1                 <==== A single file
+    │   ├── file2
     │   ├── ...
     │   └── fileN
-    ├── blobs									  <==== All the dirs of blobs are stored in this directory
-  	│		├── blobDir1             <==== A directory of blobs
-    │	  │   ├── blob1             <==== A single Bolb instance stored to a file
-    │   │		├── ...
-    │   │		└── blobN
-    │		├── blobDir2
-    │	  │   ├── blob1                
-    │   │		├── ...
-    │   │		└── blobN
+    ├── blobs                   <==== All the dirs of blobs are stored in this directory
+  	│   ├── blobDir1             <==== A directory of blobs
+    │   │   ├── blob1             <==== A single Bolb instance stored to a file
+    │   │   ├── ...
+    │   │   └── blobN
+    │   ├── blobDir2
+    │   │   ├── blob1
+    │   │   ├── ...
+    │   │   └── blobN
     │   ├── ...
     │   └── blobDirN
-    │	      ├── blob1                
-    │   		├── ...
-    │   		└── blobN
-    ├── branch									 <==== All the dir of blobs are stored in this directory
-  	│		├── branch1               <==== A single Pointer(Branch) stored to a file
-    │		├── branch2
+    │       ├── blob1
+    │       ├── ...
+    │       └── blobN
+    ├── branch                   <==== All the dir of blobs are stored in this directory
+  	│   ├── branch1               <==== A single Pointer(Branch) stored to a file
+    │   ├── branch2
     │   ├── ...
     │   └── branchN
-    ├── commits									<==== All the commits are stored in this directory
-  	│		├── commit1              <==== A single Commit instance stored to a file
-    │		├── commit2
+    ├── commits                 <==== All the commits are stored in this directory
+  	│   ├── commit1              <==== A single Commit instance stored to a file
+    │   ├── commit2
     │   ├── ...
     │   └── commitN
-    ├── remote									<==== All the remotes are stored in this directory
-  	│		├── remote1              <==== A single Remote instance stored to a file
-    │		├── remote2
+    ├── remote                  <==== All the remotes are stored in this directory
+  	│   ├── remote1              <==== A single Remote instance stored to a file
+    │   ├── remote2
     │   ├── ...
     │   └── remoteN
-    └── removed									<==== All the added file are stored in this directory
+    └── removed                 <==== All the added file are stored in this directory
   			├── file1                 <==== A single file
     		├── file2
        	├── ...
