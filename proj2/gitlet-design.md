@@ -143,7 +143,7 @@ Describe your strategy for ensuring that you don’t lose the state of your prog
 
 The directory structure looks like this:
 
-**done with directory structure looks 22.10.07**
+**fix directory structure look 22.10.07**
 
 ```java
 CWD                             <==== Whatever the current working directory is.
