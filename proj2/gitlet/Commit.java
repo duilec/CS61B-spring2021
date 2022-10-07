@@ -63,7 +63,7 @@ public class Commit implements Serializable {
     public Blob makeBlob(File stagingFile) {
         Blob blob = new Blob(stagingFile);
         String blobID = blob.getBlobID();
-        saveDirAndFileInBlobs(blob, BLOB_FOLDER, blobID);
+        saveDirAndObjInBlobs(blob, BLOB_FOLDER, blobID);
         return blob;
     }
 

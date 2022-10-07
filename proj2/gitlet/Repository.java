@@ -1,6 +1,7 @@
 package gitlet;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -37,11 +38,15 @@ public class Repository {
     public static final File BLOB_FOLDER = join(GITLET_DIR, "blobs");
     /** The branch of folder. */
     public static final File BRANCH_FOLDER = join(GITLET_DIR, "branch");
+    /** The remote of folder */
+    public static final File REMOTE_FOLDER = join(GITLET_DIR, "remote");
     /** The name of head */
     public static final String headName = "HEAD";
     /** The name of master(branch) */
     public static final String masterName = "master";
 
+
+    /** based command */
     // using helperMethod to "init"
     // if success, setup persistence, else print error msg
     public static void initCommand(String msg) {
@@ -243,6 +248,8 @@ public class Repository {
     }
 
     public static void mergeCommand(String branchName) {
+        // it is remote branch?
+        branchName = convertRemoteBranchName(branchName);
         // If there are staged additions or removals present, print the error message and exit.
         if (plainFilenamesIn(ADDITION_FOLDER).size() > 0 || plainFilenamesIn(REMOVED_FOLDER).size() > 0) {
             printErrorWithExit("You have uncommitted changes.");
@@ -277,16 +284,82 @@ public class Repository {
         String otherCommitID = extractBranchThenGetCommitID(branchName);
         Commit other = readObject(join(COMMITS_FOLDER, otherCommitID), Commit.class);
         merge(split, other);
-        String mergeMessage ="Merged " + branchName + " into "+ extractHEADThenGetActiveBranchName() + ".";
-        commitCommandHelper(mergeMessage, true, branchName);
+        commitCommandHelper(getMergeMessage(branchName), true, branchName);
     }
 
+    /** remote command */
+    public static void addRemoteCommand(String remoteName, String dirPathString) {
+        // If a remote with the given name already exists, print the error message and exit
+        if (plainFilenamesIn(REMOTE_FOLDER).contains(remoteName)) {
+            printErrorWithExit("A remote with that name already exists.");
+        }
+        Remote remote = new Remote(remoteName, dirPathString);
+        saveObj(REMOTE_FOLDER, remoteName, remote);
+    }
+
+    public static void rmRemoteCommand(String remoteName) {
+        // If a remote with the given name already exists, print the error message and exit
+        if (!plainFilenamesIn(REMOTE_FOLDER).contains(remoteName)) {
+            printErrorWithExit("A remote with that name does not exist.");
+        }
+        // only delete obj of remote but not delete remote branch, remote blobs and remote commits
+        for (String name : plainFilenamesIn(REMOTE_FOLDER)) {
+            if (name.equals(remoteName)) {
+                unrestrictedDelete(join(REMOTE_FOLDER, name));
+            }
+        }
+    }
+
+    public static void pushCommand(String remoteName, String remoteBranchName) {
+        Remote remote = readObject(join(REMOTE_FOLDER, remoteName), Remote.class);
+        validateRemoteDir(remote);
+        File remoteDir = remote.getRemoteDir();
+        // If the remote branch’s head is not in the history of the current local head, print the error message and exit
+        Pointer remoteActiveBranch = readObject(join(remoteDir, "branch", remoteBranchName), Pointer.class);
+        // note: HEAD point to branch, branch point to commit
+        String remoteHeadID = remoteActiveBranch.getCommitID();
+        if (!isRemoteHeadIDInHistoryOfLocal(remoteHeadID, getCurrentCommit())) {
+            printErrorWithExit("Please pull down remote changes before pushing.");
+        }
+        // If the remote .gitlet directory does not exist, print the error message and exit
+        validateRemoteDir(remote);
+        Commit localCurrentCommit = getCurrentCommit();
+        push(remoteDir, localCurrentCommit, remoteHeadID);
+        saveRemoteBranch(remoteDir, remoteBranchName, localCurrentCommit.getCommitID());
+        saveRemoteHEAD(remoteDir, remoteBranchName, getInitCommitID());
+    }
+
+    public static void fetchCommand(String remoteName, String remoteBranchName) {
+        Remote remote = readObject(join(REMOTE_FOLDER, remoteName), Remote.class);
+        // If the remote .gitlet directory does not exist, print the error message and exit
+        validateRemoteDir(remote);
+        // If the remote Gitlet repository does not have the given branch name, print the error message and exit
+        if (!remote.getBranchNames().contains(remoteBranchName)) {
+            printErrorWithExit("That remote does not have that branch.");
+        }
+        File remoteDir = remote.getRemoteDir();
+        Pointer branch = readObject(join(remoteDir, "branch", remoteBranchName), Pointer.class);
+        Commit commit = readObject(join(remoteDir, "commits", branch.getCommitID()), Commit.class);
+        fetch(remoteDir, commit);
+        // let remote branch name with backslash
+        // eg. R1, master => R1\master
+        saveBranch(remoteName + "\\" + remoteBranchName, branch.getCommitID());
+    }
+
+    public static void pullCommand(String remoteName, String remoteBranchName) {
+        fetchCommand(remoteName, remoteBranchName);
+        mergeCommand(remoteName + "/" +remoteBranchName);
+    }
+
+    /** base */
     /** using in checkout command */
     private static void checkoutWithFileName(String fileName) {
         checkout(getCurrentCommit(), fileName);
     }
 
     private static void checkoutWithBranchName(String branchName) {
+        // it is remote branch?
+        branchName = convertRemoteBranchName(branchName);
         // If no branch with that name exists
         List<String> branchNames = plainFilenamesIn(BRANCH_FOLDER);
         if (!branchNames.contains(branchName)) {
@@ -302,7 +375,8 @@ public class Repository {
         //  If a working file is untracked in the current branch and would be overwritten by the checkout
         checkUntrackedFileError();
         // Takes all files in the commit at the head of the given branch,
-        // and puts them in the working directory, overwriting the versions of the files that are already there if they exist.
+        // and puts them in the working directory,
+        // overwriting the versions of the files that are already there if they exist.
         // firstly, deleted all files in CWD
         for (String name : plainFilenamesIn(CWD)) {
             restrictedDelete(name);
@@ -346,6 +420,16 @@ public class Repository {
             }
         }
         printError("File does not exist in that commit.");
+    }
+
+    // change remote branch name with backslash but not slash
+    // eg. R1/master => R1\master
+    private static String convertRemoteBranchName(String branchName) {
+        if (branchName.contains("/")) {
+            int indexOfslash = branchName.indexOf("/");
+            branchName = branchName.substring(0, indexOfslash) + "\\" + branchName.substring(indexOfslash + 1);
+        }
+        return branchName;
     }
 
     /** using in merge command */
@@ -538,6 +622,22 @@ public class Repository {
         printError("Encountered a merge conflict.");
     }
 
+    // change remote branch name with slash but not backslash
+    // eg. R1\master => R1/master
+    private static String deConvertRemoteBranchName(String branchName) {
+        if (branchName.contains("\\")) {
+            int indexOfBackslash = branchName.indexOf("\\");
+            branchName = branchName.substring(0, indexOfBackslash) + "/" + branchName.substring(indexOfBackslash + 1);
+        }
+        return branchName;
+    }
+
+    private static String getMergeMessage(String branchName) {
+        branchName = deConvertRemoteBranchName(branchName);
+        String mergeMessage ="Merged " + branchName + " into "+ extractHEADThenGetActiveBranchName() + ".";
+        return mergeMessage;
+    }
+
     /** using in add command */
     // compared commit files and working files
     // if equal return true, else return false
@@ -564,7 +664,7 @@ public class Repository {
         List<String> parentIDs = commit.getParentIDs();
         if (parentIDs.size() == 2) {
             System.out.println("Merge: " + parentIDs.get(0).substring(0, 7) + " "
-                    + parentIDs.get(1).substring(0, 7));
+                                + parentIDs.get(1).substring(0, 7));
         }
         // how to get Pacific Standard Time in java?
         // different during date and timestamp:
@@ -924,7 +1024,6 @@ public class Repository {
     public static void saveHEAD(String activeBranchName, String initCommitID) {
         Pointer HEAD = new Pointer(true, activeBranchName, initCommitID);
         HEAD.saveHEADFile();
-        HEAD.saveHEADFile();
     }
 
     /**
@@ -951,6 +1050,7 @@ public class Repository {
         ADDITION_FOLDER.mkdir();
         REMOVED_FOLDER.mkdir();
         BRANCH_FOLDER.mkdir();
+        REMOTE_FOLDER.mkdir();
 
         // create initial commit
         Commit initCommit = makeCommitWithInit(msg);
@@ -959,5 +1059,84 @@ public class Repository {
         // create HEAD and master
         saveActiveBranch(masterName, initCommitID);
         saveHEAD(masterName, initCommitID);
+    }
+
+    /** remote */
+    /** using in push command */
+    // fetch all commits and blobs from remote repo by recursion
+    private static void push(File remoteDir, Commit commit, String remoteHeadID) {
+        String commitID = commit.getCommitID();
+        File RemoteCommitsFolder = join(remoteDir, "commits");
+        if (commitID.equals(remoteHeadID) || plainFilenamesIn(RemoteCommitsFolder).contains(commitID)) {
+            return;
+        }
+        // save commit
+        if (!plainFilenamesIn(RemoteCommitsFolder).contains(commitID)) {
+            saveObj(RemoteCommitsFolder, commitID, commit);
+        }
+        // save blobs with comparing
+        for (String blobID : commit.getBlobIDs()) {
+            Blob blob = readObject(join(BLOB_FOLDER, getDirID(blobID), blobID), Blob.class);
+            saveDirAndObjInBlobs(blob, join(remoteDir, "blobs"), blob.getBlobID());
+        }
+        // fetch from parent commits(maybe with merge)
+        for (String parentID : commit.getParentIDs()) {
+            Commit parentCommit = readObject(join(COMMITS_FOLDER, parentID), Commit.class);
+            push(remoteDir, parentCommit, remoteHeadID);
+        }
+    }
+
+    private static boolean isRemoteHeadIDInHistoryOfLocal(String remoteHeadID, Commit commit) {
+        // is remote head id in history of local?
+        boolean isInHistoryOfLocal = commit.getCommitID().equals(remoteHeadID);
+        // check parent commits(maybe with merge)
+        for (String parentID : commit.getParentIDs()) {
+            Commit parentCommit = readObject(join(COMMITS_FOLDER, parentID), Commit.class);
+            return isInHistoryOfLocal || isRemoteHeadIDInHistoryOfLocal(remoteHeadID, parentCommit);
+        }
+        return isInHistoryOfLocal;
+    }
+
+    // save(change) a branch in remote
+    public static void saveRemoteBranch(File remoteDir, String branchName, String commitID) {
+        Pointer branch = new Pointer(false, branchName, commitID);
+        saveObj(join(remoteDir, "branch"), branchName, branch);
+    }
+
+    // save(change) HEAD in remote
+    // we always store initCommitID in HEAD
+    public static void saveRemoteHEAD(File remoteDir, String activeBranchName, String initCommitID) {
+        Pointer HEAD = new Pointer(true, activeBranchName, initCommitID);
+        saveObj(remoteDir, activeBranchName, HEAD);
+    }
+
+    /** using in fetch command */
+    // fetch all commits and blobs from remote repo by recursion
+    private static void fetch(File remoteDir, Commit commit) {
+        String commitID = commit.getCommitID();
+        if (commit == null || plainFilenamesIn(COMMITS_FOLDER).contains(commitID)) {
+            return;
+        }
+        // save commit
+        if (!plainFilenamesIn(COMMITS_FOLDER).contains(commitID)) {
+            saveObj(COMMITS_FOLDER, commitID, commit);
+        }
+        // save blobs with comparing
+        for (String blobID : commit.getBlobIDs()) {
+            Blob blob = readObject(join(remoteDir, "blobs", getDirID(blobID), blobID), Blob.class);
+            saveDirAndObjInBlobs(blob, BLOB_FOLDER, blob.getBlobID());
+        }
+        // fetch from parent commits(maybe with merge)
+        for (String parentID : commit.getParentIDs()) {
+            Commit parentCommit = readObject(join(remoteDir, "commits", parentID), Commit.class);
+            fetch(remoteDir, parentCommit);
+        }
+    }
+
+    private static void validateRemoteDir(Remote remote) {
+        // If the remote .gitlet directory does not exist, print the error message and exit
+        if (!remote.getRemoteDir().exists()) {
+            printErrorWithExit("Remote directory not found.");
+        }
     }
 }

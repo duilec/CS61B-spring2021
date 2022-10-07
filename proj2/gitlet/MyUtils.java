@@ -10,7 +10,7 @@ import static gitlet.Utils.*;
 public class MyUtils {
     // in blobs,
     // we may use same blob so, we need to compare ID to parent
-    public static void saveDirAndFileInBlobs(Serializable SerObj, File FOLDER, String ID) {
+    public static void saveDirAndObjInBlobs(Serializable SerObj, File FOLDER, String ID) {
         Commit parentCommit = getCurrentCommit();
         // get blobIDs of parent
         List<String> parentBlobIDs = parentCommit.getBlobIDs();

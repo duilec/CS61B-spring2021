@@ -50,6 +50,7 @@ public class Main {
 
         String firstArg = args[0];
         switch(firstArg) {
+            // base
             case "init":
                 validateOperands("init", args, 1);
                 Repository.initCommand("initial commit");
@@ -105,6 +106,27 @@ public class Main {
             case "merge":
                 validateInitAndOperands("merge", args, 2);
                 Repository.mergeCommand(args[1]);
+                break;
+            // remote
+            case "add-remote":
+                validateInitAndOperands("add-remote", args, 3);
+                Repository.addRemoteCommand(args[1], args[2]);
+                break;
+            case "rm-remote":
+                validateInitAndOperands("rm-remote", args, 2);
+                Repository.rmRemoteCommand(args[1]);
+                break;
+            case "push":
+                validateInitAndOperands("push", args, 3);
+                Repository.pushCommand(args[1], args[2]);
+                break;
+            case "fetch":
+                validateInitAndOperands("fetch", args, 3);
+                Repository.fetchCommand(args[1], args[2]);
+                break;
+            case "pull":
+                validateInitAndOperands("pull", args, 3);
+                Repository.pullCommand(args[1], args[2]);
                 break;
             // If a user inputs a command that doesn’t exist,
             // print the message No command with that name exists. and exit.
@@ -178,8 +200,18 @@ public class Main {
             case "rm-branch":
                 matchBranchName(args[1]);
                 break;
-            case "merge":
-                matchCommitID(args[1]);
+            case "add-remote":
+                matchRemoteName(args[1]);
+                matchRemoteDirectory(args[2]);
+                break;
+            case "rm-remote":
+                matchRemoteName(args[1]);
+                break;
+            case "fetch":
+            case "push":
+            case "pull":
+                matchRemoteName(args[1]);
+                matchBranchName(args[2]);
                 break;
         }
     }
@@ -188,7 +220,7 @@ public class Main {
     // "Incorrect operands." with Regular Expression of matching filename
     private static void matchFileName(String fileName) {
         // filename pattern
-        String fileNamePattern = ".+\\..+";
+        String fileNamePattern = "[^\\/\\\\\\:\\*\\\"\\>\\|\\?]+\\.[^\\/\\\\\\:\\*\\\"\\>\\|\\?]+";
         if (!Pattern.matches(fileNamePattern, fileName)) {
             printErrorWithExit("Incorrect operands.");
         }
@@ -215,14 +247,32 @@ public class Main {
     // "Incorrect operands." with Regular Expression of matching message
     private static void matchBranchName(String branchName) {
         // message pattern equals branch name pattern
-        matchMessage(branchName);
+        String branchNamePattern = "[\\w\\d\\s\\/]+";
+        if (!Pattern.matches(branchNamePattern, branchName)) {
+            printErrorWithExit("Incorrect operands.");
+        }
     }
 
     // "Incorrect operands." with Regular Expression of matching commitID
     private static void matchCommitID(String message) {
         // commit id pattern
-        String commitIDPattern = "[\\w\\d]+";
+        String commitIDPattern = "[a-f\\d]+";
         if (!Pattern.matches(commitIDPattern, message)) {
+            printErrorWithExit("Incorrect operands.");
+        }
+    }
+
+    // "Incorrect operands." with Regular Expression of matching message
+    private static void matchRemoteName(String remoteName) {
+        // message pattern equals remote name pattern
+        matchBranchName(remoteName);
+    }
+
+    // "Incorrect operands." with Regular Expression of matching message
+    private static void matchRemoteDirectory(String dirName) {
+        // name of directory pattern
+        String dirNamePattern = "([\\w\\d\\.]+\\/?)+\\/.gitlet";
+        if (!Pattern.matches(dirNamePattern, dirName)) {
             printErrorWithExit("Incorrect operands.");
         }
     }

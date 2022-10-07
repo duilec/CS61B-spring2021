@@ -16,12 +16,12 @@ public class Pointer implements Serializable {
     private String activeBranchName;
 
     // construct pointer of HEAD/branch
-    public Pointer(boolean isHead, String Name, String... ID) {
+    public Pointer(boolean isHead, String Name, String ID) {
         if (isHead) {
-            this.initCommitID = ID[0];
+            this.initCommitID = ID;
             this.activeBranchName = Name;
         } else {
-            this.commitID = ID[0];
+            this.commitID = ID;
             this.branchName = Name;
         }
     }

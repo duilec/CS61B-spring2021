@@ -88,6 +88,8 @@ class Utils {
         return restrictedDelete(new File(file));
     }
 
+    /** Deletes the file named FILE if it exists and is not a directory.
+     *  Returns true if FILE was deleted, and false otherwise. */
     static boolean unrestrictedDelete(File file) {
         if (!file.isDirectory()) {
             return file.delete();
