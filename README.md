@@ -32,7 +32,7 @@ This is my solution about homework, lab and project in CS61B spring2021
   - [x] proj1
   - [x] proj1EC
   - [x] proj2
-  - [ ] proj2EC(only compete `status`)
+  - [x] proj2EC(compete `status` & `remote` but not `diff` )
   - [ ] proj3
 
 ## helper link
@@ -339,6 +339,10 @@ I download `music.mid` FROM [bitmidi](https://bitmidi.com/)
 ### proj1ec
 
 - you can use a message of `String` to contain information
+
+### proj2 and proj2ec
+
+- [gitlet-design](https://github.com/duilec/CS61B-spring2021/blob/main/proj2/gitlet-design.md)
 
 ## homework
 
