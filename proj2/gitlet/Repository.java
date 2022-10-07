@@ -163,8 +163,8 @@ public class Repository {
         // The order of the commits does not matter.
         // i.e. prints all commits in Commits
         for (String ID : plainFilenamesIn(COMMITS_FOLDER)) {
-                Commit commit = readObject(join(COMMITS_FOLDER, ID), Commit.class);
-                printCommitLog(commit);
+            Commit commit = readObject(join(COMMITS_FOLDER, ID), Commit.class);
+            printCommitLog(commit);
         }
     }
 
@@ -479,7 +479,6 @@ public class Repository {
     public static void merge(Commit split, Commit other){
         Commit head = getCurrentCommit();
         Set<String> allFileNames = getAllFileNames(split, head, other);
-        Set<String> allFileIDs = getAllFileNames(split, head, other);
         // using 8 rules to store some files to cwd, addition folder and removed folder
         rulesDealFiles(split, head, other, allFileNames);
     }
@@ -645,7 +644,7 @@ public class Repository {
     // NOTE: plainFilenamesIn(): Returns a list of the names of all plain files in the directory DIR,
     // in lexicographic order as Java Strings.
     public static boolean comparedCommitsAndWorking(String workingFileID) {
-        // compare fileIDs
+        // compare fileID
         // compare file ? NOT, because different content of file has different name in sha-1
         for (Blob blob : getCurrentCommit().getBlobs()) {
             if (workingFileID.equals(blob.getCopiedFileID())) {
