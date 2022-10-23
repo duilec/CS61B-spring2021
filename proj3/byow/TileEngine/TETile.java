@@ -27,6 +27,9 @@ public class TETile {
     private final Color backgroundColor;
     private final String description;
     private final String filepath;
+    // add attributes
+    private boolean marked;
+    private boolean isRoom;
 
     /**
      * Full constructor for TETile objects.
@@ -43,6 +46,8 @@ public class TETile {
         this.backgroundColor = backgroundColor;
         this.description = description;
         this.filepath = filepath;
+        this.marked = false;
+        this.isRoom = false;
     }
 
     /**
@@ -59,6 +64,8 @@ public class TETile {
         this.backgroundColor = backgroundColor;
         this.description = description;
         this.filepath = null;
+        this.marked = false;
+        this.isRoom = false;
     }
 
     /**
@@ -188,5 +195,25 @@ public class TETile {
         }
 
         return copy;
+    }
+
+    // mark a tile
+    public void markTile() {
+        marked = true;
+    }
+
+    // the tile be marked in world?
+    public boolean isMarked() {
+        return marked;
+    }
+
+    // mark a room
+    public void markRoom() {
+        isRoom = true;
+    }
+
+    // the tile be room in world?
+    public boolean isRoom() {
+        return isRoom;
     }
 }

@@ -4,7 +4,7 @@
 After looking at your own implementation, consider the implementation provided near the end of the lab.
 How did your implementation differ from the given one? What lessons can be learned from it?**
 
-Answer:
+Answer: where to place hexagon?;  you should figure most easiest rule and using hierarchical abstraction
 
 -----
 
