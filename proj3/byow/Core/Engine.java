@@ -66,15 +66,15 @@ public class Engine {
         String number = input.substring(1, stepIndex);
         seed = Long.parseLong(number);
         TETile[][] finalWorldFrame = new TETile[WIDTH][HEIGHT];
+        fillWithNOTHING(finalWorldFrame);
+        fillAndConnectRooms(finalWorldFrame);
+        buildExist();
         return finalWorldFrame;
     }
 
     // render(and display) the world
     public void renderWorld(TETile[][] world) {
         ter.initialize(WIDTH, HEIGHT);
-        fillWithNOTHING(world);
-        fillWithRooms(world);
-        buildExist();
         ter.renderFrame(world);
     }
 
@@ -90,7 +90,7 @@ public class Engine {
     }
 
     // fill the world with Room
-    public static TETile[][] fillWithRooms(TETile[][] tiles) {
+    public static TETile[][] fillAndConnectRooms(TETile[][] tiles) {
         Room[] rooms = new Room[RoomNum];
         for (int i = 0; i < RoomNum; i += 1){
             Room room = new Room(tiles, seed);

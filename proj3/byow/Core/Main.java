@@ -9,23 +9,21 @@ import byow.TileEngine.TETile;
  */
 public class Main {
     public static void main(String[] args) {
-        Engine engine = new Engine();
-        TETile[][] world = engine.interactWithInputString("n9223372036854775807s");
-        engine.renderWorld(world);
-
-//        if (args.length > 2) {
-//            System.out.println("Can only have two arguments - the flag and input string");
-//            System.exit(0);
-//        } else if (args.length == 2 && args[0].equals("-s")) {
-//            Engine engine = new Engine();
-//            engine.interactWithInputString(args[1]);
-//            System.out.println(engine.toString());
-//        // DO NOT CHANGE THESE LINES YET ;)
-//        } else if (args.length == 2 && args[0].equals("-p")) { System.out.println("Coming soon."); }
-//        // DO NOT CHANGE THESE LINES YET ;)
-//        else {
-//            Engine engine = new Engine();
-//            engine.interactWithKeyboard();
-//        }
+        if (args.length > 2) {
+            System.out.println("Can only have two arguments - the flag and input string");
+            System.exit(0);
+        } else if (args.length == 2 && args[0].equals("-s")) {
+            Engine engine = new Engine();
+            engine.interactWithInputString(args[1]);
+//        TETile[][] world = engine.interactWithInputString("n5197880843569031643s");
+//        engine.renderWorld(world);
+            System.out.println(engine.toString());
+        // DO NOT CHANGE THESE LINES YET ;)
+        } else if (args.length == 2 && args[0].equals("-p")) { System.out.println("Coming soon."); }
+        // DO NOT CHANGE THESE LINES YET ;)
+        else {
+            Engine engine = new Engine();
+            engine.interactWithKeyboard();
+        }
     }
 }
