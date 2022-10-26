@@ -27,9 +27,6 @@ public class TETile {
     private final Color backgroundColor;
     private final String description;
     private final String filepath;
-    // add attributes
-    private boolean marked;
-    private boolean isRoom;
 
     /**
      * Full constructor for TETile objects.
@@ -39,15 +36,12 @@ public class TETile {
      * @param description The description of the tile, shown in the GUI on hovering over the tile.
      * @param filepath Full path to image to be used for this tile. Must be correct size (16x16)
      */
-    public TETile(char character, Color textColor, Color backgroundColor, String description,
-                  String filepath) {
+    public TETile(char character, Color textColor, Color backgroundColor, String description, String filepath) {
         this.character = character;
         this.textColor = textColor;
         this.backgroundColor = backgroundColor;
         this.description = description;
         this.filepath = filepath;
-        this.marked = false;
-        this.isRoom = false;
     }
 
     /**
@@ -64,8 +58,6 @@ public class TETile {
         this.backgroundColor = backgroundColor;
         this.description = description;
         this.filepath = null;
-        this.marked = false;
-        this.isRoom = false;
     }
 
     /**
@@ -76,7 +68,6 @@ public class TETile {
     public TETile(TETile t, Color textColor) {
         this(t.character, textColor, t.backgroundColor, t.description, t.filepath);
     }
-
 
     /**
      * Draws the tile to the screen at location x, y. If a valid filepath is provided,
@@ -195,25 +186,5 @@ public class TETile {
         }
 
         return copy;
-    }
-
-    // mark a tile
-    public void markTile() {
-        marked = true;
-    }
-
-    // the tile be marked in world?
-    public boolean isMarked() {
-        return marked;
-    }
-
-    // mark a room
-    public void markRoom() {
-        isRoom = true;
-    }
-
-    // the tile be room in world?
-    public boolean isRoom() {
-        return isRoom;
     }
 }

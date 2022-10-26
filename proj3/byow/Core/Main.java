@@ -15,8 +15,8 @@ public class Main {
         } else if (args.length == 2 && args[0].equals("-s")) {
             Engine engine = new Engine();
             engine.interactWithInputString(args[1]);
-//        TETile[][] world = engine.interactWithInputString("n5197880843569031643s");
-//        engine.renderWorld(world);
+            TETile[][] world = engine.interactWithInputString("n9223372036854775807s");
+            engine.renderWorld(world);
             System.out.println(engine.toString());
         // DO NOT CHANGE THESE LINES YET ;)
         } else if (args.length == 2 && args[0].equals("-p")) { System.out.println("Coming soon."); }
