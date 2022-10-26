@@ -25,15 +25,15 @@ This is my solution about homework, lab and project in CS61B spring2021
   - [x] lab7
   - [x] lab8
   - [x] [lab11](https://github.com/duilec/CS61B-spring2018/tree/main/lab11/lab11/graphs) (graph exercises in 18sp)
-  - [ ] lab12
-  - [ ] ...
+  - [x] lab12
+  - [x] lab13
 - project
   - [x] proj0
   - [x] proj1
   - [x] proj1EC
   - [x] proj2
   - [x] proj2EC(compete `status` & `remote` but not `diff` )
-  - [ ] proj3
+  - [ ] proj3 (done with lab12, lab 13 and phase1)
 
 ## helper link
 
@@ -341,6 +341,9 @@ I download `music.mid` FROM [bitmidi](https://bitmidi.com/)
 - you can use a message of `String` to contain information
 
 ### proj2 and proj2ec
+
+start time: *2022.09.18*
+end time: *2022.10.01*
 
 - [gitlet-design](https://github.com/duilec/CS61B-spring2021/blob/main/proj2/gitlet-design.md)
 
