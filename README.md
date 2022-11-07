@@ -353,12 +353,13 @@ end time: *2022.10.01*
 start time:  *2022.10.20*
 end time:  *2022.11.07*
 
-- phase1: 
-  Generating world: I use **A*** of graph of algorithm to find shortest path in order to connect room and floor
-  but I used try directly connecting, it will cause many "across" and will fill floors in all world in the end. 
-  I wasted lots of time and used A* in the second time.
+- phase1
 
-- phase2(not secondary): 
+  - Generating world: I use **A*** of graph of algorithm to find shortest path in order to connect room and floor
+    but I used try directly connecting, it will cause many "across" and will fill floors in all world in the end. 
+    I wasted lots of time and used A* in the second time.
+
+- phase2(done with primary but not secondary)
   Learning interactivity in java
 
   - display information
@@ -377,8 +378,8 @@ end time:  *2022.11.07*
 
 - other
 
-  -  **I DON'T WRITE CODE ABOUT CHECKING OF ERROR**(particularly in typing)
-    - i.e. you must type right char in keyboard
+  -  **I DON'T WRITE CODE ABOUT CHECKING OF ERROR**(particularly in typing) 
+    i.e. you must type right char in keyboard
   - I don't use any method in `RandomUtils`
 
 ## homework
