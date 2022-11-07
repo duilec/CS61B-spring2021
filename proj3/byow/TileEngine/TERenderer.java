@@ -4,6 +4,7 @@ import edu.princeton.cs.introcs.StdDraw;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.io.Serializable;
 
 /**
  * Utility class for rendering tiles. You do not need to modify this file. You're welcome
@@ -11,7 +12,7 @@ import java.awt.Font;
  * messing with this renderer, unless you're trying to do something fancy like
  * allowing scrolling of the screen or tracking the avatar or something similar.
  */
-public class TERenderer {
+public class TERenderer implements Serializable {
     private static final int TILE_SIZE = 12;
     private int width;
     private int height;
@@ -32,11 +33,12 @@ public class TERenderer {
         this.height = h;
         this.xOffset = xOff;
         this.yOffset = yOff;
-        StdDraw.setCanvasSize(width * TILE_SIZE, height * TILE_SIZE);
+        // height + 2 in order to add HUI
+        StdDraw.setCanvasSize(width * TILE_SIZE, (height + 2) * TILE_SIZE);
         Font font = new Font("Monaco", Font.BOLD, TILE_SIZE - 2);
         StdDraw.setFont(font);      
         StdDraw.setXscale(0, width);
-        StdDraw.setYscale(0, height);
+        StdDraw.setYscale(0, height + 2);
 
         StdDraw.clear(new Color(0, 0, 0));
 
@@ -83,7 +85,39 @@ public class TERenderer {
      * the screen in tiles.
      * @param world the 2D TETile[][] array to render
      */
+    // render world(frame)
     public void renderFrame(TETile[][] world) {
+        renderAllTiles(world);
+        StdDraw.show();
+        while(!StdDraw.hasNextKeyTyped()) {
+            displayInfoByClick(world);
+        }
+    }
+
+    // display information in the left of top by mouse clicking
+    private void displayInfoByClick(TETile[][] world) {
+        if (StdDraw.isMousePressed()) {
+            // we need clear all tiles and ui of helper
+            renderAllTiles(world);
+            double x =StdDraw.mouseX();
+            double y =StdDraw.mouseY();
+            String info = world[(int)x][(int)y].description();
+            // set size of font to TILE_SIZE + 4
+            Font font = new Font("Monaco", Font.TYPE1_FONT, TILE_SIZE + 4);
+            StdDraw.setFont(font);
+            // display hui
+            // note: you need pen!!!
+            StdDraw.setPenColor(Color.white);
+            StdDraw.textLeft(0, this.height + 1, info);
+            // reset size of font to TILE_SIZE - 2
+            font = new Font("Monaco", Font.BOLD, TILE_SIZE - 2);
+            StdDraw.setFont(font);
+            StdDraw.show();
+        }
+    }
+
+    // render all tiles
+    private void renderAllTiles(TETile[][] world) {
         int numXTiles = world.length;
         int numYTiles = world[0].length;
         StdDraw.clear(new Color(0, 0, 0));
@@ -96,6 +130,5 @@ public class TERenderer {
                 world[x][y].draw(x + xOffset, y + yOffset);
             }
         }
-        StdDraw.show();
     }
 }

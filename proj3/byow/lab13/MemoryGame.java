@@ -1,6 +1,5 @@
 package byow.lab13;
 
-import byow.Core.RandomUtils;
 import edu.princeton.cs.introcs.StdDraw;
 
 import java.awt.Color;
@@ -107,7 +106,6 @@ public class MemoryGame {
             Font font = new Font("Monaco", Font.BOLD, 20);
             StdDraw.setFont(font);
             // the top left
-            String text = "Round: " + round;
             StdDraw.textLeft(0, this.height - 1, "Round: " + round);
             // the top center
             if (playerTurn) {
@@ -116,7 +114,7 @@ public class MemoryGame {
                 StdDraw.text(this.width / 2.0, this.height - 1, "Watch!");
             }
             // the top right
-            text = ENCOURAGEMENT[rand.nextInt(ENCOURAGEMENT.length)];
+            String text = ENCOURAGEMENT[rand.nextInt(ENCOURAGEMENT.length)];
             StdDraw.textRight(this.width, this.height - 1, text);
             // line blow the top
             StdDraw.setPenColor(Color.white);

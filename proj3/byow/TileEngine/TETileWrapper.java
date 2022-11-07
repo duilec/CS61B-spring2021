@@ -1,15 +1,23 @@
 package byow.TileEngine;
 
-public class TETileWrapper {
+import java.io.Serializable;
+
+public class TETileWrapper implements Serializable {
     // Tile type
     private TETile tile;
     // booleanValue
     private boolean marked;
     private boolean isRoom;
-    private boolean isHallway;
     // x, y
     private int x;
     private int y;
+
+    // number of room
+    private int roomNum;
+
+    // it is around(i.e. four corners, walls and door) of room?
+    // the floor is not around in room
+    private boolean isAround = false;
 
     public TETileWrapper(TETile tile, int x, int y) {
         this.tile = tile;
@@ -17,7 +25,6 @@ public class TETileWrapper {
         this.y = y;
         this.marked = false;
         this.isRoom = false;
-        this.isHallway = false;
     }
 
     public void setTile(TETile tile) {
@@ -62,5 +69,23 @@ public class TETileWrapper {
     // get y
     public int getY() {
         return y;
+    }
+
+    // set number of room
+    public void setRoomNum(int roomNum) {
+        this.roomNum = roomNum;
+    }
+    // get number of room
+    public int getRoomNum() {
+        return roomNum;
+    }
+
+    // set isAround
+    public void setIsAround() {
+        this.isAround = true;
+    }
+    // get isAround
+    public boolean getIsAround() {
+        return isAround;
     }
 }

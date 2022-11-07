@@ -4,28 +4,38 @@ import byow.TileEngine.TETile;
 import byow.TileEngine.TETileWrapper;
 import byow.TileEngine.Tileset;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.Random;
 
-public class Room {
+public class Room implements Serializable {
     private static final int smallestSide = 3;
-    private static TETileWrapper[][] worldWrappers;
-    private static Random RANDOM;
-    private static Long seed;
+    private TETileWrapper[][] worldWrappers;
+    private Random RANDOM;
 
+    // the number(order) of room
+    private int roomNum;
+
+    // the size and location of room
     private int width;
     private int height;
     private int x;
     private int y;
 
-    public Room(TETileWrapper[][] worldWrappers, Long seed) {
-        Room.worldWrappers = worldWrappers;
-        Room.seed = seed;
-        Room.RANDOM = new Random(seed);
+    // the light in room
+    private int xWithLight;
+    private int yWithLight;
+    // true => turn on; false => turn off
+    private boolean turn = true;
+
+    public Room(TETileWrapper[][] worldWrappers, int roomNum,Long seed) {
+        this.worldWrappers = worldWrappers;
+        this.RANDOM = new Random(seed);
         this.width = randomRoomSide();
         this.height = randomRoomSide();
         this.x = randomRoomPosition(true);
         this.y = randomRoomPosition(false);
+        this.roomNum = roomNum;
     }
 
     public TETileWrapper[][] makeRoom() {
@@ -59,14 +69,17 @@ public class Room {
         for (int i = x; i < x + width; i += 1) {
             fillOneTileInRoom(i, y, Tileset.WALL);
         }
-        worldWrappers[x][y].setTile(Tileset.WATER);
     }
 
     // fill one tile in room
     private void fillOneTileInRoom(int x, int y, TETile tileType) {
         worldWrappers[x][y].setTile(tileType);
+        if (tileType.equals(Tileset.WALL)) {
+            worldWrappers[x][y].setIsAround();
+        }
         worldWrappers[x][y].markRoom();
         worldWrappers[x][y].markTile(true);
+        worldWrappers[x][y].setRoomNum(roomNum);
     }
 
     // avoid wrong side and marked tiles
@@ -120,6 +133,24 @@ public class Room {
         return RANDOM.nextInt(lengthLimit);
     }
 
+    // a room:
+    //
+    // use letters:
+    // w w w w w
+    // w       w
+    // w       d e
+    // w       w
+    // w w w w w
+    //
+    // use tiles:
+    // # # # # #
+    // # . . . #
+    // # . . . . .
+    // # . . . #
+    // # # # # #
+    //
+    // a random wall exclude wall in four corners can be a door and the door has an exit in room
+    // note: the door and the exit are floor
     private LinkedList<TETileWrapper> getDoorsInRoom() {
         LinkedList<TETileWrapper> doors = new LinkedList<>();
         // DON'T consider four corners
@@ -142,7 +173,7 @@ public class Room {
         return doors;
     }
 
-    public LinkedList<TETileWrapper> getExits() {
+    public LinkedList<TETileWrapper> getExitsInRoom() {
         LinkedList<TETileWrapper> doors = getDoorsInRoom();
         LinkedList<TETileWrapper> exits = new LinkedList<>();
         for (TETileWrapper door : doors) {
@@ -154,7 +185,7 @@ public class Room {
         return exits;
     }
 
-    public TETileWrapper getRandomExitByDoors() {
+    public TETileWrapper getRandomExitByDoorsInRoom() {
         LinkedList<TETileWrapper> doors = getDoorsInRoom();
         LinkedList<TETileWrapper> exits = new LinkedList<>();
         for (TETileWrapper door : doors) {
@@ -169,13 +200,12 @@ public class Room {
         int y = randomExit.getY();
         // set exit as floor
         worldWrappers[x][y].setTile(Tileset.FLOOR);
-
         // set door as floor by exit
-        setDoorAsFloorByExit(x, y);
+        setDoorAsFloorByExitInRoom(x, y);
         return worldWrappers[x][y];
     }
 
-    public void setDoorAsFloorByExit(int x, int y) {
+    public void setDoorAsFloorByExitInRoom(int x, int y) {
         // north (x, y + 1)
         if (worldWrappers[x][y + 1].isRoom()) {
             worldWrappers[x][y + 1].setTile(Tileset.FLOOR);
@@ -196,26 +226,26 @@ public class Room {
 
     private TETileWrapper getExitOfDoor(int x, int y) {
         // north (x, y + 1)
-        if (isExit(x, y + 1)) {
+        if (isExitInRoom(x, y + 1)) {
             return worldWrappers[x][y + 1];
         }
         // south (x, y - 1)
-        if (isExit(x, y - 1)) {
+        if (isExitInRoom(x, y - 1)) {
             return worldWrappers[x][y - 1];
         }
         // west (x - 1, y)
-        if (isExit(x - 1, y)) {
+        if (isExitInRoom(x - 1, y)) {
             return worldWrappers[x - 1][y];
         }
         // east (x + 1, y)
-        if (isExit(x + 1, y)) {
+        if (isExitInRoom(x + 1, y)) {
             return worldWrappers[x + 1][y];
         }
         return null;
     }
 
 
-    private boolean isExit(int x, int y) {
+    private boolean isExitInRoom(int x, int y) {
         int worldWidth = worldWrappers.length;
         int worldHeight = worldWrappers[0].length;
         // can't choose side of limbo as exit(floor)
@@ -224,43 +254,8 @@ public class Room {
                 && !worldWrappers[x][y].isRoom();
     }
 
-    public static void buildExit() {
-        int worldWidth = worldWrappers.length;
-        int worldHeight = worldWrappers[0].length;
-        int countWall = 0;
-        for (int x = 1; x < worldWidth - 1; x += 1) {
-            for (int y = 1; y < worldHeight - 1; y += 1) {
-                if (worldWrappers[x][y].getTile().equals(Tileset.WALL)) {
-                    if (worldWrappers[x + 1][y].getTile().equals(Tileset.FLOOR)
-                            || worldWrappers[x - 1][y].getTile().equals(Tileset.FLOOR)
-                            || worldWrappers[x][y + 1].getTile().equals(Tileset.FLOOR)
-                            || worldWrappers[x][y - 1].getTile().equals(Tileset.FLOOR)) {
-                        countWall += 1;
-                    }
-                }
-            }
-        }
-        int randomNum = RANDOM.nextInt(countWall);
-        int num = 0;
-        for (int x = 1; x < worldWidth - 1; x += 1) {
-            for (int y = 1; y < worldHeight - 1; y += 1) {
-                if (worldWrappers[x][y].getTile().equals(Tileset.WALL)) {
-                    if (worldWrappers[x + 1][y].getTile().equals(Tileset.FLOOR)
-                            || worldWrappers[x - 1][y].getTile().equals(Tileset.FLOOR)
-                            || worldWrappers[x][y + 1].getTile().equals(Tileset.FLOOR)
-                            || worldWrappers[x][y - 1].getTile().equals(Tileset.FLOOR)) {
-                        num += 1;
-                        if (num == randomNum) {
-                            worldWrappers[x][y].setTile(Tileset.LOCKED_DOOR);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     // todo: random walls
-    public static void randomWallInWorld() {
+    public void randomWallInWorld() {
         int worldWidth = worldWrappers.length;
         int worldHeight = worldWrappers[0].length;
         for (int x = 0; x < worldWidth; x += 1) {
@@ -272,7 +267,7 @@ public class Room {
         }
     }
 
-    private static TETile randomTile() {
+    private TETile randomTile() {
         int tileNum = RANDOM.nextInt(4);
         switch (tileNum) {
             case 0: return Tileset.WALL;
@@ -289,5 +284,41 @@ public class Room {
 
     public int getHeight() {
         return height;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public void setXWithLight(int xWithLight) {
+        this.xWithLight = xWithLight;
+    }
+
+    public void setYWithLight(int yWithLight) {
+        this.yWithLight = yWithLight;
+    }
+
+    public int getXWithLight() {
+        return xWithLight;
+    }
+
+    public int getYWithLight() {
+        return yWithLight;
+    }
+
+    public int getRoomNum() {
+        return roomNum;
+    }
+
+    public void setTurnOn(boolean turn) {
+        this.turn = turn;
+    }
+
+    public boolean getTurnOn(){
+        return turn;
     }
 }

@@ -4,20 +4,20 @@ import byow.TileEngine.TETile;
 import byow.TileEngine.TETileWrapper;
 import byow.TileEngine.Tileset;
 
+import java.io.Serializable;
 import java.util.ArrayDeque;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Random;
 
-
-public class WorldGenerator {
-    private static final int RoomNum = 16;  // the number of room
-    private final int N;                   // dimension of worldWrappers(we assume worldWrappers is N*N)
-    private static Random RANDOM;
-    private static Long seed;
+public class WorldGenerator implements Serializable {
+    private static final int RoomNum = 35;  // the number of room
+    private final int N;                    // dimension of worldWrappers(we assume worldWrappers is N*N)
+    private Random RANDOM;
+    private Long seed;
 
     // set the worldWrappers
-    private final TETileWrapper[][] worldWrappers;
+    private TETileWrapper[][] worldWrappers;
     private final int width;
     private final int height;
 
@@ -34,9 +34,21 @@ public class WorldGenerator {
     // we always use center as target
     private boolean alwaysCenterTarget;
 
+    // avatar
+    private TETileWrapper avatar;
+
+    // all rooms
+    private LinkedList<Room> rooms = new LinkedList<>();
+
+    // turn on/off in room
+    // turn == true => turn on; turn == false => turn off
+    private boolean turn = true;
+    // true => turn on; false => turn off
+    private LinkedList<Room> randomRooms = new LinkedList<>();
+
     public WorldGenerator(Long seed, TETile[][] world, boolean alwaysCenterTarget) {
-        WorldGenerator.seed = seed;
-        WorldGenerator.RANDOM = new Random(seed);
+        this.seed = seed;
+        this.RANDOM = new Random(seed);
 
         this.height = world[0].length;
         this.width = world.length;
@@ -45,6 +57,7 @@ public class WorldGenerator {
         this.distTo = new int[V()];
         this.targetFound = false;
 
+        // init world
         this.worldWrappers = new TETileWrapper[width][height];
         for (int x = 0; x < width; x += 1) {
             for (int y = 0; y < height; y += 1) {
@@ -61,7 +74,15 @@ public class WorldGenerator {
     }
 
     public TETile[][] generateWorld() {
-        ConnectRooms();
+        connectRooms();
+        fillSomeWalls();
+        randomAvatar();
+        createRandomLightInRooms();
+        return getWorldByWorldWrappers();
+    }
+
+    public TETile[][] moveAvatarThenGenerateWorld(String direction) {
+        moveAvatar(direction);
         return getWorldByWorldWrappers();
     }
 
@@ -90,12 +111,18 @@ public class WorldGenerator {
         }
     }
 
-    private void ConnectRooms() {
+    private void connectRooms() {
         for (int i = 0; i < RoomNum; i += 1){
-            Room room = new Room(worldWrappers, seed);
+            // note: we pass an object of 'worldWrappers', we modify it by makeRoom() and
+            // the result also appear in parent(i.e. connectRooms() is parent of makeRoom())
+            // *pass an object* aka. we don't care about pointer or other
+
+            // set room number from 0 to RoomNum - 1 in room
+            Room room = new Room(worldWrappers, i, seed);
+            rooms.add(room);
             room.makeRoom();
-            connectRoomToTarget(room);
             reset();
+            connectRoomToTarget(room);
         }
     }
 
@@ -109,7 +136,7 @@ public class WorldGenerator {
 
     private void connectRoomToTargetByCenterTarget(Room room) {
         targetFound = false;
-        TETileWrapper randomExit = room.getRandomExitByDoors();
+        TETileWrapper randomExit = room.getRandomExitByDoorsInRoom();
         setSource(randomExit.getX(), randomExit.getY());
         astar();
         buildHallwayByShortestPath(target);
@@ -121,10 +148,8 @@ public class WorldGenerator {
             astar();
         } else {
             targetFound = false;
-            while (!targetFound) {
-                setRandomTargetAndSource(room);
-                astar();
-            }
+            setRandomTargetAndSource(room);
+            astar();
         }
         buildHallwayByShortestPath(target);
     }
@@ -138,11 +163,11 @@ public class WorldGenerator {
             for (int y = 1; y < height - 1; y += 1 ) {
                if (num == randomNum) {
                    setTarget(x, y);
-                   // you can't mark target by markTile()!!!
+                   // you can't mark target by markTile() in this method
                    worldWrappers[x][y].setTile(Tileset.FLOOR);
                    isFirst = false;
                    // set first source
-                   TETileWrapper randomExit = room.getRandomExitByDoors();
+                   TETileWrapper randomExit = room.getRandomExitByDoorsInRoom();
                    setSource(randomExit.getX(), randomExit.getY());
                    return;
                }
@@ -152,12 +177,12 @@ public class WorldGenerator {
     }
 
     private void setRandomTargetAndSource(Room room){
-        LinkedList<TETileWrapper> NotRoomButFloors = notRoomButFloors();
-        LinkedList<TETileWrapper> exits = room.getExits();
+        LinkedList<TETileWrapper> notRoomButFloors = notRoomButFloors();
+        LinkedList<TETileWrapper> exits = room.getExitsInRoom();
         int randomNum1, randomNum2;
         // set random target
-        randomNum1 = RANDOM.nextInt(NotRoomButFloors.size());
-        TETileWrapper tileWrapper = NotRoomButFloors.get(randomNum1);
+        randomNum1 = RANDOM.nextInt(notRoomButFloors.size());
+        TETileWrapper tileWrapper = notRoomButFloors.get(randomNum1);
         setTarget(tileWrapper.getX(), tileWrapper.getY());
         // set random source
         randomNum2 = RANDOM.nextInt(exits.size());
@@ -166,19 +191,19 @@ public class WorldGenerator {
         int y = randomExit.getY();
         setSource(x, y);
         // set door in room as floor by exit
-        room.setDoorAsFloorByExit(randomExit.getX(), randomExit.getY());
+        room.setDoorAsFloorByExitInRoom(x, y);
     }
 
     private LinkedList<TETileWrapper> notRoomButFloors() {
-        LinkedList<TETileWrapper> NotRoomButFloors = new LinkedList<>();
+        LinkedList<TETileWrapper> notRoomButFloors = new LinkedList<>();
         for (int x = 1; x < width - 1; x += 1) {
             for (int y = 1; y < height - 1; y += 1 ) {
                 if (!worldWrappers[x][y].isRoom() && worldWrappers[x][y].getTile().equals(Tileset.FLOOR)) {
-                    NotRoomButFloors.add(worldWrappers[x][y]);
+                    notRoomButFloors.add(worldWrappers[x][y]);
                 }
             }
         }
-        return NotRoomButFloors;
+        return notRoomButFloors;
     }
 
     /** Estimate of the distance from v to the target. */
@@ -291,14 +316,255 @@ public class WorldGenerator {
                 && !worldWrappers[x][y].getTile().equals(Tileset.FLOOR);
     }
 
-    private void setSource(int sourceX, int sourceY) {
-        this.source = xyTo1D(sourceX, sourceY);
+    private void setSource(int x, int y) {
+        this.source = xyTo1D(x, y);
     }
 
     private void setTarget(int x, int y) {
         this.target = xyTo1D(x, y);
     }
 
+    // you may meet some hallways with width of bigger than 2 (i.e. 3*3 floors or more)
+    // so, we add a wall in the center of hallways with 3*3 floors
+    private void fillSomeWalls() {
+        for (int x = 0; x <= width - 3; x += 1) {
+            for (int y = 2; y <= height - 1; y += 1) {
+                if (!worldWrappers[x][y].isRoom()
+                        && worldWrappers[x][y].getTile().equals(Tileset.FLOOR)) {
+                    int floorCount = 0;
+                    // note: we should reset loop in each loop (i.e. int i = x; int j = y;)
+                    for (int i = x; i <= x + 2; i += 1) {
+                        for (int j = y; j >= y - 2; j -= 1) {
+                            if (worldWrappers[i][j].getTile().equals(Tileset.FLOOR)) {
+                                floorCount += 1;
+                            }
+                        }
+                    }
+                    // if it is 3*3 floors, then center set as wall
+                    if (floorCount == 9) {
+                        worldWrappers[x + 1][y - 1].setTile(Tileset.WALL);
+                    }
+                }
+            }
+        }
+    }
+
+    // create random avatar
+    private void randomAvatar() {
+        LinkedList<TETileWrapper> floors = new LinkedList<>();
+        for (int x = 0; x <= width - 1; x += 1) {
+            for (int y = 0; y <= height - 1; y += 1) {
+                if (worldWrappers[x][y].getTile().equals(Tileset.FLOOR)) {
+                    floors.add(worldWrappers[x][y]);
+                }
+            }
+        }
+        int randomNum = RANDOM.nextInt(floors.size());
+        TETileWrapper avatarTemp = floors.get(randomNum);
+        worldWrappers[avatarTemp.getX()][avatarTemp.getY()].setTile(Tileset.AVATAR);
+        this.avatar = worldWrappers[avatarTemp.getX()][avatarTemp.getY()];
+    }
+
+    // move avatar
+    private void moveAvatar(String direction) {
+        // W, up
+        if (direction.equals("W") && validDirection("W")) {
+            moveTo("W");
+        }
+        // S, down
+        if (direction.equals("S") && validDirection("S")) {
+            moveTo("S");
+        }
+        // A, left
+        if (direction.equals("A") && validDirection("A")) {
+            moveTo("A");
+        }
+        // D, right
+        if (direction.equals("D") && validDirection("D")) {
+            moveTo("D");
+        }
+        keepLightingWithAvatarInRoom();
+    }
+
+    private boolean validDirection(String direction) {
+        int x = avatar.getX();
+        int y = avatar.getY();
+        // W,S,A,D
+        TETileWrapper tileWrapper = switch (direction) {
+            case "W" -> worldWrappers[x][y + 1];
+            case "S" -> worldWrappers[x][y - 1];
+            case "A" -> worldWrappers[x - 1][y];
+            case "D" -> worldWrappers[x + 1][y];
+            default -> null;
+        };
+        return tileWrapper.getTile().equals(Tileset.FLOOR)
+                || tileWrapper.getTile().description().equals(Tileset.LIGHTS[0].description());
+    }
+
+    private void moveTo(String direction) {
+        int x = avatar.getX();
+        int y = avatar.getY();
+        // W,S,A,D
+        switch (direction) {
+            case "W":
+                worldWrappers[x][y].setTile(Tileset.FLOOR);
+                worldWrappers[x][y + 1].setTile(Tileset.AVATAR);
+                // note: you should reset this.avatar
+                this.avatar = worldWrappers[x][y + 1];
+                break;
+            case "S":
+                worldWrappers[x][y].setTile(Tileset.FLOOR);
+                worldWrappers[x][y - 1].setTile(Tileset.AVATAR);
+                this.avatar = worldWrappers[x][y - 1];
+                break;
+            case "A":
+                worldWrappers[x][y].setTile(Tileset.FLOOR);
+                worldWrappers[x - 1][y].setTile(Tileset.AVATAR);
+                this.avatar = worldWrappers[x - 1][y];
+                break;
+            case "D":
+                worldWrappers[x][y].setTile(Tileset.FLOOR);
+                worldWrappers[x + 1][y].setTile(Tileset.AVATAR);
+                this.avatar = worldWrappers[x + 1][y];
+                break;
+        }
+    }
+
+    // create random light in room
+    private void createRandomLightInRooms() {
+        // lighten in rooms
+        for (Room room : rooms) {
+            int x = room.getX();
+            int y = room.getY();
+            int wight = room.getWidth();
+            int height = room.getHeight();
+            int randomNum = RANDOM.nextInt((wight - 2) * (height - 2));
+            int count = 0;
+            for (int i = x + 1; i <= x + wight - 2; i += 1) {
+                for(int j = y - 1; j >= y - height + 2; j -= 1) {
+                    if (count == randomNum) {
+                        // set x with light and y with light in room
+                        room.setXWithLight(i);
+                        room.setYWithLight(j);
+                        turnOnOrOffLightInRoom(i, j, room.getRoomNum(), room.getTurnOn());
+                    }
+                    count += 1;
+                }
+            }
+        }
+    }
+
+    private void keepLightingWithAvatarInRoom() {
+        // lighten with avatar in room
+        if (avatar.isRoom()) {
+            Room room = rooms.get(avatar.getRoomNum());
+            //  if turn == false but room is lighting(i.e. turn on), we should keep lighting
+            //  if turn == false but room is not lighting(i.e. turn off), we should keep not lighting
+            turnOnOrOffLightInRoom(room.getXWithLight(), room.getYWithLight(), room.getRoomNum(), room.getTurnOn());
+        }
+    }
+
+    // randomly number of room to turn on/off light
+    public TETile[][] turnOnOrOffLightInRooms() {
+        // 0. turn on -> 1. turn off -> 2. turn on -> 3. turn off -> 4. turn on -> ...
+        // i.e. 0. turn = true -> 1. turn = false -> 2. turn = true -> 3. turn = false -> 4. turn = true -> ...
+        // flip turn by typed "P"
+        turn = !turn;
+        // if turn off, we should reset random rooms to next to turn on/off
+        if (!turn) {
+            resetRandomRooms();
+        }
+        // turn on/off light in rooms
+        for (Room room : randomRooms) {
+            room.setTurnOn(turn);
+            turnOnOrOffLightInRoom(room.getXWithLight(), room.getYWithLight(), room.getRoomNum(), room.getTurnOn());
+        }
+        return getWorldByWorldWrappers();
+    }
+
+    // reset random rooms to turn on/off
+    private void resetRandomRooms() {
+        // get total of rooms to turn on/off but not 0
+        int turnTotal = RANDOM.nextInt(RoomNum + 1);
+        while (turnTotal == 0) {
+            turnTotal = RANDOM.nextInt(RoomNum + 1);
+        }
+        int randomRoomNum = RANDOM.nextInt(turnTotal);
+        // randomly get roomNum to turn on/off but not same
+        LinkedList<Integer> turnRoomNumbers = new LinkedList<>();
+        while(turnRoomNumbers.size() != turnTotal) {
+            if (!turnRoomNumbers.contains(randomRoomNum)) {
+                turnRoomNumbers.add(randomRoomNum);
+            }
+            randomRoomNum = RANDOM.nextInt(turnTotal);
+        }
+        // set rooms to turn on/off
+        randomRooms.clear();
+        for (int roomNum : turnRoomNumbers) {
+            randomRooms.add(rooms.get(roomNum));
+        }
+    }
+
+    private void turnOnOrOffLightInRoom(int xWithLight, int yWithLight, int roomNum, boolean turn) {
+        // if turn on, we should generate light with background(blue/yellow) in rooms
+        // otherwise, we should generate light without background(blue/yellow) in rooms
+        if (turn) {
+            Tileset.generateLightWithBlue();
+        } else {
+            Tileset.generateLightWithoutBackground();
+        }
+        // length of side: 1, 3, 5, 7, 9, 11...
+        for (int x = xWithLight, y = yWithLight, levelWithLight = 0, sideLength = 1;
+             y < yWithLight + Tileset.levelWithLights;
+             x -= 1, y += 1, levelWithLight += 1, sideLength += 2) {
+            TETileWrapper tileWrapper;
+            // bottom
+            int level = sideLength - 1;
+            for (int i = x; i < x + sideLength; i += 1) {
+                setFloorToLightInRoom(i, y - level, roomNum, levelWithLight);
+            }
+            // middle
+            level -= 1;
+            while (level > 0){
+                for (int i = x; i < x + sideLength; i += 1 ) {
+                    if (i == x || i == x + sideLength - 1) {
+                        setFloorToLightInRoom(i, y - level, roomNum, levelWithLight);
+                    }
+                }
+                level -= 1;
+            }
+            // top, level = 0
+            for (int i = x; i < x + sideLength; i += 1) {
+                setFloorToLightInRoom(i, y - level, roomNum, levelWithLight);
+            }
+        }
+    }
+
+    // In room, tile must acquire some conditions below, then we can set the floor to the light
+    // 1. tile is floor or light(light maybe not background, so we should use description())
+    // 2. tile in room
+    // 3. tile is not in around of room(i.e. not walls, door and four corners in room)
+    // 4. tile has same roomNum(i.e. we must ensure tile in current room)
+    private void setFloorToLightInRoom(int x, int y, int roomNum, int levelWithLight) {
+        if (validTileInWorld(x, y)) {
+            TETileWrapper tileWrapper = worldWrappers[x][y];
+            if ((tileWrapper.getTile().equals(Tileset.FLOOR)
+                    || (tileWrapper.getTile().description().equals("light")))
+                    && !tileWrapper.getTile().equals(Tileset.AVATAR)
+                    && tileWrapper.isRoom()
+                    && !tileWrapper.getIsAround()
+                    && tileWrapper.getRoomNum() == roomNum) {
+                tileWrapper.setTile(Tileset.LIGHTS[levelWithLight]);
+            }
+        }
+    }
+
+    // it is valid tile in world?
+    private boolean validTileInWorld(int x, int y) {
+        return  x >= 0 && x < width && y >= 0 && y < height;
+    }
+
+    // set mark in worldWrapper
     private void setMarkInWorldWrappers(int v, boolean markedValue) {
         worldWrappers[toX(v)][toY(v)].markTile(markedValue);
     }
