@@ -366,8 +366,10 @@ end time:  *2022.11.07*
   - typing
   - mouse clicking
 
-  I save process(file) by some Utils(`MyUtils`) form **proj2**
+  I choose implement "**turn on/off right in room**"
 
+  I save process(file) by some Utils from **proj2(`Utils`)**.
+  
 - conclusion
   I have some experience to simply my code
 
