@@ -13,8 +13,8 @@ This is my solution about homework, lab and project in CS61B spring2021
 
 - homework
   - [x] hw0
-  - [ ] hw2
-  - [ ] hw3
+  - [ ] hw2 (I skip it)
+  - [ ] hw3 (I skip it)
 - lab
   - [x] lab1
   - [x] lab2
@@ -32,8 +32,9 @@ This is my solution about homework, lab and project in CS61B spring2021
   - [x] proj1
   - [x] proj1EC
   - [x] proj2
-  - [x] proj2EC(compete `status` & `remote` but not `diff` )
-  - [ ] proj3 (done with lab12, lab 13 and phase1)
+  - [x] proj2EC(compete `status` & `remote` but **NOT**  `diff` )
+  - [x] proj3 (done with phase1 and primary of phase2 but **NOT** secondary of phase2 and network)
+  - [ ] proj3EC(I skip it)
 
 ## helper link
 
@@ -346,6 +347,39 @@ start time: *2022.09.18*
 end time: *2022.10.01*
 
 - [gitlet-design](https://github.com/duilec/CS61B-spring2021/blob/main/proj2/gitlet-design.md)
+
+### proj3
+
+start time:  *2022.10.20*
+end time:  *2022.11.07*
+
+- phase1: 
+  Generating world: I use **A*** of graph of algorithm to find shortest path in order to connect room and floor
+  but I used try directly connecting, it will cause many "across" and will fill floors in all world in the end. 
+  I wasted lots of time and used A* in the second time.
+
+- phase2(not secondary): 
+  Learning interactivity in java
+
+  - display information
+  - typing
+  - mouse clicking
+
+  I save process(file) by some Utils(`MyUtils`) form **proj2**
+
+- conclusion
+  I have some experience to simply my code
+
+  - OOP
+  - reducing repeating code
+  - set some *mark* to compare
+  - level abstraction
+
+- other
+
+  -  **I DON'T WRITE CODE ABOUT CHECKING OF ERROR**(particularly in typing)
+    - i.e. you must type right char in keyboard
+  - I don't use any method in `RandomUtils`
 
 ## homework
 
